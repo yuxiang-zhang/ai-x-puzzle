@@ -14,10 +14,11 @@ class Puzzle8:
                  goal2_hash:(1, 3, 5, 7,
                              2, 4, 6, 0)}
 
-    def __init__(self, start_config:iter):
-        if len(start_config) != 8:
+    def __init__(self, init_config:iter):
+        if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
-        self.config = list(start_config)
+        # initial configuration
+        self.config = list(init_config)
         # pq sorted by f(n)
         self.open_list = []
         # visited_state_hash -> parent_state_hash
@@ -32,6 +33,9 @@ class Puzzle8:
         if isinstance(other, Puzzle8):
             return tuple(self.config) == tuple(other.config)
         return NotImplemented
+
+    def __str__(self):
+        return ' '.join(map(str, self.config[:4])) + '\n' + ' '.join(map(str, self.config[4:]))
 
     def is_goal(self):
         return self.__hash__() == Puzzle8.goal1_hash or self.__hash__() == Puzzle8.goal2_hash
@@ -83,6 +87,3 @@ class Puzzle8:
                 heapq.heappush(self.open_list, (cost, 
                                                 (new_conf_hash, self.__hash__())
                                                 ))
-
-    def __str__(self):
-        return ' '.join(map(str, self.config[:4])) + '\n' + ' '.join(map(str, self.config[4:]))
