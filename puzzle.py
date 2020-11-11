@@ -1,10 +1,7 @@
 # from queue import PriorityQueue
 import heapq
-from enum import Enum
 
 class Puzzle8:
-
-    Move = Enum('Move', ('Horizontal', 'Vertical', 'Wrapping', 'Diagonal'))
 
     goal1_hash = hash((1, 2, 3, 4, 5, 6, 7, 0))
     goal2_hash = hash((1, 3, 5, 7, 2, 4, 6, 0))
@@ -14,15 +11,28 @@ class Puzzle8:
                  goal2_hash:(1, 3, 5, 7,
                              2, 4, 6, 0)}
 
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def open_list(self):
+        return self._open_list
+
+    @property
+    def closed_list(self):
+        return self._closed_list
+
     def __init__(self, init_config:iter):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
         # initial configuration
-        self.config = list(init_config)
+        self._config = list(init_config)
         # pq sorted by f(n)
-        self.open_list = []
+        self._open_list = []
         # visited_state_hash -> parent_state_hash
-        self.closed_list = {}
+        self._closed_list = {}
+
 
     def __hash__(self):
         key = hash(tuple(self.config))
