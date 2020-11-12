@@ -6,37 +6,42 @@ from puzzle import Puzzle8
 class SearchStrategy(ABC):
 
     def __init__(self, h_func:Heuristic = H0, game:Puzzle8=None):
+        # the puzzle to be solved
         self._game = game
         # heuristic function
         self._heuristic = h_func
         # pq sorted by f(n)
         self._open_list = PriorityQueue()
-        self._open_dict = {}
-        # visited_state_hash -> parent_state_hash
+        # visited_state -> parent_state
         self._closed_list = {}
         super().__init__()
 
     @abstractmethod
     def evaluation_function(self, new_state):
+        """Evaluation function to be used to get/estimate the cost for a path. """
         pass
 
     @abstractmethod
     def search(self):
+        """Core search strategy to be used to get the solution. """
         pass
 
-    def update_open_list(self, successors, from_state):
+    def update_open_list(self, successors):
+        """
+        Insert computed successors one by one into the open_list.
+        When inserting, don't check if the state already in open_list, directly put in open_list;
+        for duplicates, check in closed list whenever popping from open list.
+        :param successors: computed successors from current state
+        :return:
+        """
         for to_state in successors:
             key = hash(to_state)
             if key not in self._closed_list:
-                if key not in self._open_dict:
-                    self._open_dict[key] = to_state
-                    self._open_list.put((self.evaluation_function(to_state), to_state))
-                elif self._open_dict[key].path_cost > to_state.path_cost:
-                        self._open_dict[key].from_state = self._game.state
-                        self._open_dict[key].path_cost = to_state.path_cost
+                self._open_list.put((self.evaluation_function(to_state), to_state))
 
 
     def get_best_next(self):
+        """Pop next minimal cost from open list"""
         return self._open_list.get()[-1]
 
 
