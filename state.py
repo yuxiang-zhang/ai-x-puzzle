@@ -1,4 +1,5 @@
 class State:
+    MAX_MOVES = 31
 
     @property
     def config(self):
@@ -20,7 +21,7 @@ class State:
     def path_cost(self, cost):
         self._path_cost = cost
 
-    def __init__(self, init_config:tuple, cost=0, from_state=None):
+    def __init__(self, init_config:tuple, cost=MAX_MOVES, from_state=None):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
         self._config = list(init_config)
