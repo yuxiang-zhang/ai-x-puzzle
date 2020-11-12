@@ -1,99 +1,70 @@
 # from queue import PriorityQueue
-import heapq
+from searchstrat import SearchStrategy
+from state import State
 
 class Puzzle8:
-
-    goal1_hash = hash((1, 2, 3, 4, 5, 6, 7, 0))
-    goal2_hash = hash((1, 3, 5, 7, 2, 4, 6, 0))
-
-    dict_conf = {goal1_hash:(1, 2, 3, 4,
-                             5, 6, 7, 0),
-                 goal2_hash:(1, 3, 5, 7,
-                             2, 4, 6, 0)}
+    goal1 = State((1, 2, 3, 4, 5, 6, 7, 0))
+    goal2 = State((1, 3, 5, 7, 2, 4, 6, 0))
 
     @property
-    def config(self):
-        return self._config
+    def search_strat(self):
+        return self._search_strat
+
+    @search_strat.setter
+    def search_strat(self, strat):
+        self._search_strat = strat
 
     @property
-    def open_list(self):
-        return self._open_list
+    def state(self):
+        return self._state
 
-    @property
-    def closed_list(self):
-        return self._closed_list
+    @state.setter
+    def state(self, state):
+        self._state = state
 
-    def __init__(self, init_config:iter):
+    def __init__(self, init_config:iter, search_strat:SearchStrategy):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
-        # initial configuration
-        self._config = list(init_config)
-        # pq sorted by f(n)
-        self._open_list = []
-        # visited_state_hash -> parent_state_hash
-        self._closed_list = {}
+        self._search_strat = search_strat
+        # initial state
+        self._state = State(init_config)
 
+    @staticmethod
+    def is_goal(self, state):
+        return state == Puzzle8.goal1 or state == Puzzle8.goal2
 
-    def __hash__(self):
-        key = hash(tuple(self.config))
-        Puzzle8.dict_conf[key] = tuple(self.config)
-        return key
-
-    def __eq__(self, other):
-        if isinstance(other, Puzzle8):
-            return tuple(self.config) == tuple(other.config)
-        return NotImplemented
-
-    def __str__(self):
-        return ' '.join(map(str, self.config[:4])) + '\n' + ' '.join(map(str, self.config[4:]))
-
-    def is_goal(self):
-        return self.__hash__() == Puzzle8.goal1_hash or self.__hash__() == Puzzle8.goal2_hash
-
-    def hash_next_conf(self, blank, tile):
-        conf = list(self.config)
+    def gen_successor(self, blank, tile):
+        conf = list(self._state.config)
         conf[blank], conf[tile] = conf[tile], conf[blank]
-        key = hash(tuple(conf))
-        if key not in Puzzle8.dict_conf:
-            Puzzle8.dict_conf[key] = tuple(conf)
-        return key
+        return State(tuple(conf))
 
-    def move(self, blank):
+    def successor(self):
+        blank = self._state.config.index(0)
         moves = {1:[], 2:[], 3:[]}
         successors = {}
 
         # Regular moves
-        cost = 1
+        move_cost = 1
         # Vertical
-        moves[cost].append(blank ^ int('100', 2))
+        moves[move_cost].append(blank ^ int('100', 2))
 
         # Horizontal
-        moves[cost].append(blank ^ int('001', 2))
+        moves[move_cost].append(blank ^ int('001', 2))
         # Horizontal or Wrapping
-        if self.config.index(0) in [0, 3, 4, 7]: # if 0 is in a corner
-            cost = 2
-        moves[cost].append(blank ^ int('011', 2)) # then this covers Wrapping case
-
+        if blank in [0, 3, 4, 7]: # if 0 is in a corner
+            move_cost = 2
+        moves[move_cost].append(blank ^ int('011', 2)) # then this covers Wrapping case
 
         # Corner moves
-        cost = 3
-        moves[cost].append(blank ^ int('101', 2))
-        moves[cost].append(blank ^ int('111', 2))
+        move_cost = 3
+        moves[move_cost].append(blank ^ int('101', 2))
+        moves[move_cost].append(blank ^ int('111', 2))
 
-        for cost, tiles in moves.items():
+        for move_cost, tiles in moves.items():
             for tile in tiles:
-                successors[self.hash_next_conf(blank, tile)] = cost
+                successors[self.gen_successor(blank, tile)] = self._state.path_cost + move_cost
 
         return successors
 
-    def successor(self):
-        blank = self.config.index(0)
-        successors = self.move(blank)
-
-        for new_conf_hash, cost in successors.items():
-            if new_conf_hash not in self.closed_list:
-                # don't check if already in open_list, directly put in open_list;
-                # for duplicates, check in closed list whenever popping from open list
-                heapq.heappush(self.open_list, (cost, 
-                                                (new_conf_hash, self.__hash__())
-                                                ))
+    def search(self):
+        self._search_strat.search_for_goal(self.successor(), self.is_goal)
