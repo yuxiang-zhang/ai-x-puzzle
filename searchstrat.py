@@ -39,12 +39,14 @@ class SearchStrategy(ABC):
             if key not in self._closed_list:
                 self._open_list.put((self.evaluation_function(to_state), to_state))
 
-    def get_best_next(self):
-        """
-        Pop next minimal cost from open list
-        :return: next minimal cost state
-        """
-        return self._open_list.get()[-1]
+    def get_best_next_state(self):
+        """Pop next minimal cost state from open list"""
+        while self._open_list.not_empty:
+            state = self._open_list.get()[-1]
+            if state not in self._closed_list:
+                self._closed_list[state] = self._game.state
+                return state
+        return None # empty open list
 
 
 class UniformCost(SearchStrategy, ABC):
