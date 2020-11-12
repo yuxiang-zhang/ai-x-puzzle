@@ -5,6 +5,14 @@ class State:
         return self._config
 
     @property
+    def from_state(self):
+        return self._from_state
+
+    @from_state.setter
+    def from_state(self, state):
+        self._from_state = state
+
+    @property
     def path_cost(self):
         return self._path_cost
 
@@ -12,11 +20,12 @@ class State:
     def path_cost(self, cost):
         self._path_cost = cost
 
-    def __init__(self, init_config:tuple, cost=0):
+    def __init__(self, init_config:tuple, cost=0, from_state=None):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
         self._config = list(init_config)
         self._path_cost = cost
+        self._from_state = from_state
 
     def __hash__(self):
         val = tuple(self.config)
@@ -25,7 +34,7 @@ class State:
 
     def __eq__(self, other):
         if isinstance(other, State):
-            return hash(tuple(self._config)) == hash(tuple(other._config))
+            return hash(self) == hash(other)
         return NotImplemented
 
     def __lt__(self, other):
