@@ -12,7 +12,7 @@ class Puzzle8:
     def state(self, state):
         self._state = state
 
-    def __init__(self, init_config: iter):
+    def __init__(self, init_config: tuple):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
         # initial state

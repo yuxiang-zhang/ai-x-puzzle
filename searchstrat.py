@@ -51,6 +51,9 @@ class SearchStrategy(ABC):
 
 class UniformCost(SearchStrategy, ABC):
 
+    def __str__(self):
+        return 'ucs'
+
     def evaluation_function(self, new_state):
         return new_state.path_cost
 
@@ -66,7 +69,10 @@ class GBFS(SearchStrategy, ABC):
         pass
 
 
-class AlgoA(SearchStrategy, ABC):
+class AStar(SearchStrategy, ABC):
+
+    def __str__(self):
+        return 'astar-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
         return new_state.path_cost + self._heuristic.estimate(new_state.config)
