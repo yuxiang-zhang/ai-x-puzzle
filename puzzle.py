@@ -16,7 +16,7 @@ class Puzzle8:
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
         # initial state
-        self._state = State(init_config)
+        self._state = State(init_config, 0)
 
     def is_goal(self):
         return self._state in [Puzzle8.goal1, Puzzle8.goal2]
