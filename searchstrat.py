@@ -42,10 +42,10 @@ class SearchStrategy(ABC):
     def get_best_next_state(self):
         """Pop next minimal cost state from open list"""
         while self._open_list.not_empty:
-            state = self._open_list.get()[-1]
+            cost, state = self._open_list.get()
             if state not in self._closed_list:
                 self._closed_list[state] = self._game.state
-                return state
+                return cost, state
         return None # empty open list
 
 

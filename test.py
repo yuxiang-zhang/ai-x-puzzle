@@ -22,7 +22,7 @@ class TestPuzzle(unittest.TestCase):
                       (3, State((0, 2, 3, 1, 5, 6, 7, 4), 3, init_state)),
                       (3, State((4, 2, 0, 1, 5, 6, 7, 3), 3, init_state))]
         while successors:
-            self.assertEqual(heapq.heappop(successors)[-1], strat.get_best_next_state())
+            self.assertEqual(heapq.heappop(successors)[-1], strat.get_best_next_state()[-1])
 
     def test_state_str(self):
         self.assertRegex(str(State((4,2,3,0,5,6,7,1))), '4 2 3 0 5 6 7 1')
