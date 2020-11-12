@@ -37,7 +37,7 @@ class SearchStrategy(ABC):
         for to_state in successors:
             key = hash(to_state)
             if key not in self._closed_list:
-                self._open_list.put((self.evaluation_function(to_state), to_state))
+                self._open_list.put((sum(self.evaluation_function(to_state)), to_state))
 
     def get_best_next_state(self):
         """Pop next minimal cost state from open list"""
@@ -55,7 +55,7 @@ class UniformCost(SearchStrategy, ABC):
         return 'ucs'
 
     def evaluation_function(self, new_state):
-        return new_state.path_cost
+        return new_state.path_cost, 0
 
     def search(self):
         pass
@@ -63,7 +63,7 @@ class UniformCost(SearchStrategy, ABC):
 class GBFS(SearchStrategy, ABC):
 
     def evaluation_function(self, new_state):
-        return self._heuristic.estimate(new_state.config)
+        return 0, self._heuristic.estimate(new_state.config)
 
     def search(self):
         pass
@@ -75,7 +75,7 @@ class AStar(SearchStrategy, ABC):
         return 'astar-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
-        return new_state.path_cost + self._heuristic.estimate(new_state.config)
+        return new_state.path_cost, self._heuristic.estimate(new_state.config)
 
     def search(self):
         pass
