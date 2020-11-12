@@ -8,11 +8,11 @@ from state import State
 class TestPuzzle(unittest.TestCase):
 
     def test_goal(self):
-        self.assertTrue(puzzle.Puzzle8([1, 3, 5, 7, 2, 4, 6, 0]).is_goal())
-        self.assertFalse(puzzle.Puzzle8([4, 2, 3, 1, 5, 6, 7, 0]).is_goal())
+        self.assertTrue(puzzle.Puzzle8((1, 3, 5, 7, 2, 4, 6, 0)).is_goal())
+        self.assertFalse(puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0)).is_goal())
 
     def test_update_open_list_with_successor_function(self):
-        game = puzzle.Puzzle8([4, 2, 3, 1, 5, 6, 7, 0])
+        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
         strat = searchstrat.UniformCost(game=game)
         strat.update_open_list()
         init_state = State((4, 2, 3, 1, 5, 6, 7, 0))
@@ -24,6 +24,8 @@ class TestPuzzle(unittest.TestCase):
         while successors:
             self.assertEqual(heapq.heappop(successors)[-1], strat.get_best_next_state())
 
+    def test_state_str(self):
+        self.assertRegex(str(State((4,2,3,0,5,6,7,1))), '4 2 3 0 5 6 7 1')
 
 if __name__ == '__main__':
     unittest.main()

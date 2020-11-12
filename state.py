@@ -44,4 +44,4 @@ class State:
         return NotImplemented
 
     def __str__(self):
-        return ' '.join(map(str, self.config[:4])) + '\n' + ' '.join(map(str, self.config[4:]))
+        return ' '.join(map(str, self.config))
