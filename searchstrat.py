@@ -26,22 +26,24 @@ class SearchStrategy(ABC):
         """Core search strategy to be used to get the solution. """
         pass
 
-    def update_open_list(self, successors):
+    def update_open_list(self):
         """
         Insert computed successors one by one into the open_list.
         When inserting, don't check if the state already in open_list, directly put in open_list;
         for duplicates, check in closed list whenever popping from open list.
-        :param successors: computed successors from current state
         :return:
         """
+        successors = self._game.successor()
         for to_state in successors:
             key = hash(to_state)
             if key not in self._closed_list:
                 self._open_list.put((self.evaluation_function(to_state), to_state))
 
-
     def get_best_next(self):
-        """Pop next minimal cost from open list"""
+        """
+        Pop next minimal cost from open list
+        :return: next minimal cost state
+        """
         return self._open_list.get()[-1]
 
 

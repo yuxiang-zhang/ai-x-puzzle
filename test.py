@@ -14,7 +14,7 @@ class TestPuzzle(unittest.TestCase):
     def test_update_open_list_with_successor_function(self):
         game = puzzle.Puzzle8([4, 2, 3, 1, 5, 6, 7, 0])
         strat = searchstrat.UniformCost(game=game)
-        strat.update_open_list(game.successor())
+        strat.update_open_list()
         init_state = State((4, 2, 3, 1, 5, 6, 7, 0))
         successors = [(1, State((4, 2, 3, 0, 5, 6, 7, 1), 1, init_state)),
                       (1, State((4, 2, 3, 1, 5, 6, 0, 7), 1, init_state)),
