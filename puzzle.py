@@ -1,18 +1,8 @@
-# from queue import PriorityQueue
-from searchstrat import SearchStrategy
 from state import State
 
 class Puzzle8:
     goal1 = State((1, 2, 3, 4, 5, 6, 7, 0))
     goal2 = State((1, 3, 5, 7, 2, 4, 6, 0))
-
-    @property
-    def search_strat(self):
-        return self._search_strat
-
-    @search_strat.setter
-    def search_strat(self, strat):
-        self._search_strat = strat
 
     @property
     def state(self):
@@ -22,26 +12,23 @@ class Puzzle8:
     def state(self, state):
         self._state = state
 
-    def __init__(self, init_config:iter, search_strat:SearchStrategy):
+    def __init__(self, init_config: iter):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
-        self._search_strat = search_strat
         # initial state
         self._state = State(init_config)
 
-    @staticmethod
-    def is_goal(self, state):
-        return state == Puzzle8.goal1 or state == Puzzle8.goal2
+    def is_goal(self):
+        return self._state in [Puzzle8.goal1, Puzzle8.goal2]
 
-    def gen_successor(self, blank, tile):
+    def gen_config(self, blank, tile):
         conf = list(self._state.config)
         conf[blank], conf[tile] = conf[tile], conf[blank]
-        return State(tuple(conf))
+        return tuple(conf)
 
     def successor(self):
         blank = self._state.config.index(0)
         moves = {1:[], 2:[], 3:[]}
-        successors = {}
 
         # Regular moves
         move_cost = 1
@@ -60,11 +47,11 @@ class Puzzle8:
         moves[move_cost].append(blank ^ int('101', 2))
         moves[move_cost].append(blank ^ int('111', 2))
 
+        successors = []
         for move_cost, tiles in moves.items():
             for tile in tiles:
-                successors[self.gen_successor(blank, tile)] = self._state.path_cost + move_cost
+                successors.append(State(self.gen_config(blank, tile),
+                                        self._state.path_cost + move_cost,
+                                        self._state))
 
         return successors
-
-    def search(self):
-        self._search_strat.search_for_goal(self.successor(), self.is_goal)
