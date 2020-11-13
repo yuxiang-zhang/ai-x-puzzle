@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from queue import PriorityQueue
+from time import time
 from heuristics import Heuristic, H0
 
 logging_disabled = False
