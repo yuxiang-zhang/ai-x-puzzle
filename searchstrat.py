@@ -59,12 +59,10 @@ class SearchStrategy(ABC):
 
     def retrieve_solution(self):
         state = self._game.state
-        sol_file_entry = ' '.join(map(str, (0, 0, state)))
-        self._sol_logger.info(sol_file_entry)
         while state.from_state is not None:
-            state = state.from_state
             sol_file_entry = ' '.join(map(str, (state.last_moved_tile, state.path_cost - state.from_state.path_cost, state)))
             self._sol_logger.info(sol_file_entry)
+            state = state.from_state
 
 
 class UCS(SearchStrategy, ABC):
