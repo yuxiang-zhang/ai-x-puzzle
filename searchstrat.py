@@ -57,10 +57,14 @@ class SearchStrategy(ABC):
 
     def retrieve_solution(self):
         state = self._game.state
+
         while state.from_state is not None:
             sol_file_entry = ' '.join(map(str, (state.last_moved_tile, state.path_cost - state.from_state.path_cost, state)))
             self._sol_logger.info(sol_file_entry)
             state = state.from_state
+
+        sol_file_entry = ' '.join(map(str, (state.last_moved_tile, state.path_cost, state)))
+        self._sol_logger.info(sol_file_entry)
 
 
 class UniformCost(SearchStrategy, ABC):
