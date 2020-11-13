@@ -87,10 +87,10 @@ class UCS(SearchStrategy, ABC):
         start_time = time()
         self._open_list.put((0, self._game.state))
         while self._open_list:
+            _, self._game.state = self.get_best_next_state()
             if self._game.is_goal():
                 return time() - start_time
             self.update_open_list()
-            _, self._game.state = self.get_best_next_state()
         pass
 
 class GBFS(SearchStrategy, ABC):
