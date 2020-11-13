@@ -17,7 +17,7 @@ class SearchStrategy(ABC):
         # visited_state -> parent_state
         self._closed_list = {}
         # logger to be defined in subclasses
-        logging.basicConfig(filename='out/dump.log', format='%(message)s', level='INFO')
+        logging.basicConfig(filename='out/dump.log', filemode='w', format='%(message)s', level='INFO')
         self._search_logger = logging.getLogger()
         self._sol_logger = logging.getLogger()
         super().__init__()
