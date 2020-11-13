@@ -1,6 +1,8 @@
 import logging
 from abc import ABC, abstractmethod
 from queue import PriorityQueue
+from time import time
+
 from heuristics import Heuristic, H0
 from puzzle import Puzzle8
 
@@ -65,7 +67,7 @@ class SearchStrategy(ABC):
             self._sol_logger.info(sol_file_entry)
 
 
-class UniformCost(SearchStrategy, ABC):
+class UCS(SearchStrategy, ABC):
     def __init__(self, h_func:Heuristic = H0(), game:Puzzle8=None, puzzle_num=0):
         super().__init__(h_func, game)
         if not logging_disabled:
@@ -82,9 +84,13 @@ class UniformCost(SearchStrategy, ABC):
         return new_state.path_cost, 0
 
     def search(self):
-        self._open_list.put(self._game.state)
+        start_time = time()
+        self._open_list.put((0, self._game.state))
         while self._open_list:
-            pass
+            if self._game.is_goal():
+                return time() - start_time
+            self.update_open_list()
+            _, self._game.state = self.get_best_next_state()
         pass
 
 class GBFS(SearchStrategy, ABC):
