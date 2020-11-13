@@ -80,9 +80,9 @@ class UCS(SearchStrategy, ABC):
         super().__init__(h_func, game)
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
-            self._search_logger = logging.getLogger(str(self)+'.search')
+            self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
             self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
-            self._sol_logger = logging.getLogger(str(self)+'.sol')
+            self._sol_logger = logging.getLogger('.'.join(map(str, ['sol', self, puzzle_num])))
             self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
     def __str__(self):
@@ -107,9 +107,9 @@ class GBFS(SearchStrategy, ABC):
         super().__init__(h_func, game)
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
-            self._search_logger = logging.getLogger(str(self)+'.search')
+            self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
             self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
-            self._sol_logger = logging.getLogger(str(self)+'.sol')
+            self._sol_logger = logging.getLogger('.'.join(map(str, ['sol', self, puzzle_num])))
             self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
     def __str__(self):
@@ -127,9 +127,9 @@ class AStar(SearchStrategy, ABC):
         super().__init__(h_func, game)
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
-            self._search_logger = logging.getLogger(str(self)+'.search')
+            self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
             self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
-            self._sol_logger = logging.getLogger(str(self)+'.sol')
+            self._sol_logger = logging.getLogger('.'.join(map(str, ['sol', self, puzzle_num])))
             self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
     def __str__(self):
