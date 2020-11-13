@@ -2,14 +2,11 @@ import logging
 from abc import ABC, abstractmethod
 from queue import PriorityQueue
 from heuristics import Heuristic, H0
-from puzzle import Puzzle8
 
 logging_disabled = False
 
 class SearchStrategy(ABC):
-    def __init__(self, h_func:Heuristic = H0(), game:Puzzle8=None):
-        # the puzzle to be solved
-        self._game = game
+    def __init__(self, h_func:Heuristic = H0()):
         # heuristic function
         self._heuristic = h_func
         # pq sorted by f(n)
@@ -29,35 +26,34 @@ class SearchStrategy(ABC):
         pass
 
     @abstractmethod
-    def search(self):
+    def search(self, puzzle):
         """Core search strategy to be used to get the solution. """
         pass
 
-    def update_open_list(self):
+    def update_open_list(self, successors):
         """
         Insert computed successors one by one into the open_list.
         When inserting, don't check if the state already in open_list, directly put in open_list;
         for duplicates, check in closed list whenever popping from open list.
         :return:
         """
-        successors = self._game.successor()
         for to_state in successors:
             if to_state not in self._closed_list:
                 self._open_list.put((sum(self.evaluation_function(to_state)), to_state))
 
-    def get_best_next_state(self):
+    def get_best_next_state(self, curr_state):
         """Pop next minimal cost state from open list"""
         while self._open_list.not_empty:
             cost, state = self._open_list.get()
             if state not in self._closed_list:
-                self._closed_list[state] = self._game.state
+                self._closed_list[state] = curr_state
                 search_file_entry = ' '.join(map(str, (cost, *self.evaluation_function(state), state)))
                 self._search_logger.info(search_file_entry)
                 return cost, state
         return None # empty open list
 
-    def retrieve_solution(self):
-        state = self._game.state
+    def retrieve_solution(self, last_state):
+        state = last_state
         cost = state.path_cost
         stack = []
         while state.from_state is not None:
@@ -74,8 +70,8 @@ class SearchStrategy(ABC):
 
 
 class UniformCost(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0(), game:Puzzle8=None, puzzle_num=0):
-        super().__init__(h_func, game)
+    def __init__(self, h_func:Heuristic = H0(), puzzle_num=0):
+        super().__init__(h_func)
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
             self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
@@ -89,15 +85,12 @@ class UniformCost(SearchStrategy, ABC):
     def evaluation_function(self, new_state):
         return new_state.path_cost, 0
 
-    def search(self):
-        self._open_list.put(self._game.state)
-        while self._open_list:
-            pass
+    def search(self, puzzle):
         pass
 
 class GBFS(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0(), game:Puzzle8=None, puzzle_num=0):
-        super().__init__(h_func, game)
+    def __init__(self, h_func:Heuristic = H0(), puzzle_num=0):
+        super().__init__(h_func)
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
             self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
@@ -111,13 +104,13 @@ class GBFS(SearchStrategy, ABC):
     def evaluation_function(self, new_state):
         return 0, self._heuristic.estimate(new_state.config)
 
-    def search(self):
+    def search(self, puzzle):
         pass
 
 
 class AStar(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0(), game:Puzzle8=None, puzzle_num=0):
-        super().__init__(h_func, game)
+    def __init__(self, h_func:Heuristic = H0(), puzzle_num=0):
+        super().__init__(h_func)
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
             self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
@@ -131,5 +124,5 @@ class AStar(SearchStrategy, ABC):
     def evaluation_function(self, new_state):
         return new_state.path_cost, self._heuristic.estimate(new_state.config)
 
-    def search(self):
+    def search(self, puzzle):
         pass
