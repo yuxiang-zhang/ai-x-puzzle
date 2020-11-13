@@ -9,24 +9,25 @@ class State:
     def from_state(self):
         return self._from_state
 
-    @from_state.setter
-    def from_state(self, state):
-        self._from_state = state
-
     @property
     def path_cost(self):
         return self._path_cost
+
+    @property
+    def last_moved_tile(self):
+        return self._last_moved_tile
 
     @path_cost.setter
     def path_cost(self, cost):
         self._path_cost = cost
 
-    def __init__(self, init_config:tuple, cost=MAX_MOVES, from_state=None):
+    def __init__(self, init_config: tuple, cost=MAX_MOVES, from_state=None, last_moved_tile=0):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle')
         self._config = list(init_config)
         self._path_cost = cost
         self._from_state = from_state
+        self._last_moved_tile = last_moved_tile
 
     def __hash__(self):
         val = tuple(self.config)
