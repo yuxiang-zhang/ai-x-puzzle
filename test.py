@@ -9,11 +9,11 @@ class TestPuzzle(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        searchstrat.logging_disabled = True
+        pass
 
     @classmethod
     def tearDownClass(cls):
-        searchstrat.logging_disabled = False
+        pass
 
     def test_goal(self):
         self.assertTrue(puzzle.Puzzle8((1, 3, 5, 7, 2, 4, 6, 0)).is_goal())

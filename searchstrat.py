@@ -4,8 +4,6 @@ from queue import PriorityQueue
 from time import time
 from heuristics import Heuristic, H0
 
-logging_disabled = False
-
 class SearchStrategy(ABC):
     def __init__(self, h_func:Heuristic = H0()):
         # logger to be defined in subclasses
