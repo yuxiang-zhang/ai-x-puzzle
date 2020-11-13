@@ -7,29 +7,38 @@ logging_disabled = False
 
 class SearchStrategy(ABC):
     def __init__(self, h_func:Heuristic = H0()):
+        # logger to be defined in subclasses
+        self._search_logger = logging.getLogger()
+        self._sol_logger = logging.getLogger()
         # heuristic function
         self._heuristic = h_func
         # pq sorted by f(n)
         self._open_list = PriorityQueue()
         # visited_state -> parent_state
         self._closed_list = {}
-        # logger to be defined in subclasses
-        logging.basicConfig(filename='out/dump.log', filemode='w', format='%(message)s', level='INFO')
-        self._search_logger = logging.getLogger()
-        self._sol_logger = logging.getLogger()
         self._runtime = 0
         super().__init__()
 
     def setup_loggers(self, puzzle_num=-1):
-        filename = 'out/{}_{}_'.format(puzzle_num, self.name())
-        self._search_logger = logging.getLogger('.'.join(['search', self.name(), str(puzzle_num)]))
+        filename = 'out/{}_{}_'.format(puzzle_num, str(self))
+        logging.basicConfig('out/dump.log', 'w', format='%(message)s', level='INFO')
+        self._search_logger = logging.getLogger('.'.join(['search', str(self), str(puzzle_num)]))
         self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
-        self._sol_logger = logging.getLogger('.'.join(['sol', self.name(), str(puzzle_num)]))
+        self._sol_logger = logging.getLogger('.'.join(['sol', str(self), str(puzzle_num)]))
         self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
-    @abstractmethod
-    def name(self):
-        pass
+    def reset(self):
+        self._open_list.queue.clear()
+        self._closed_list.clear()
+        self._runtime = 0
+
+    @property
+    def heuristic(self):
+        return self._heuristic
+
+    @heuristic.setter
+    def heuristic(self, h_func:Heuristic):
+        self._heuristic = h_func
 
     @abstractmethod
     def evaluation_function(self, new_state):
@@ -84,7 +93,7 @@ class UniformCost(SearchStrategy, ABC):
     def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
 
-    def name(self):
+    def __str__(self):
         return 'ucs'
 
     def evaluation_function(self, new_state):
@@ -97,7 +106,7 @@ class GBFS(SearchStrategy, ABC):
     def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
 
-    def name(self):
+    def __str__(self):
         return 'gbfs-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
@@ -111,7 +120,7 @@ class AStar(SearchStrategy, ABC):
     def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
 
-    def name(self):
+    def __str__(self):
         return 'astar-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
