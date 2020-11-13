@@ -35,5 +35,6 @@ class TestPuzzle(unittest.TestCase):
     def test_state_str(self):
         self.assertRegex(str(State((4,2,3,0,5,6,7,1))), '4 2 3 0 5 6 7 1')
 
+
 if __name__ == '__main__':
     unittest.main()
