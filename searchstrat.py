@@ -31,6 +31,15 @@ class SearchStrategy(ABC):
         self._closed_list.clear()
         self._runtime = 0
 
+    def fail(self):
+        search_file_handler = self._search_logger.handlers[0]
+        search_file_handler.stream.seek(0)
+        search_file_handler.stream.truncate(0)
+        search_file_handler.terminator = ''
+        self._search_logger.info('no solution')
+        self._sol_logger.handlers[0].terminator = ''
+        self._sol_logger.info('no solution')
+
     @property
     def heuristic(self):
         return self._heuristic
