@@ -53,6 +53,6 @@ class Puzzle8:
                 successors.append(State(self.gen_config(blank, self._state.config[tile]),
                                         self._state.path_cost + move_cost,
                                         self._state,
-                                        tile))
+                                        self._state.config[tile]))
 
         return successors

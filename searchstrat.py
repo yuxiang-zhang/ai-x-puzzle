@@ -75,9 +75,9 @@ class UCS(SearchStrategy, ABC):
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
             self._search_logger = logging.getLogger(str(self)+'.search')
-            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt'))
+            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
             self._sol_logger = logging.getLogger(str(self)+'.sol')
-            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt'))
+            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
     def __str__(self):
         return 'ucs'
@@ -101,9 +101,9 @@ class GBFS(SearchStrategy, ABC):
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
             self._search_logger = logging.getLogger(str(self)+'.search')
-            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt'))
+            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
             self._sol_logger = logging.getLogger(str(self)+'.sol')
-            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt'))
+            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
     def __str__(self):
         return 'gbfs-' + str(self._heuristic)
@@ -121,9 +121,9 @@ class AStar(SearchStrategy, ABC):
         if not logging_disabled:
             filename = 'out/{}_{}_'.format(puzzle_num, str(self))
             self._search_logger = logging.getLogger(str(self)+'.search')
-            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt'))
+            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
             self._sol_logger = logging.getLogger(str(self)+'.sol')
-            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt'))
+            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
     def __str__(self):
         return 'astar-' + str(self._heuristic)
