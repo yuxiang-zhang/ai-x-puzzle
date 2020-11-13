@@ -3,8 +3,6 @@ from abc import ABC, abstractmethod
 from queue import PriorityQueue
 from heuristics import Heuristic, H0
 
-logging_disabled = False
-
 class SearchStrategy(ABC):
     def __init__(self, h_func:Heuristic = H0()):
         # logger to be defined in subclasses
@@ -89,7 +87,7 @@ class SearchStrategy(ABC):
         self._sol_logger.info('{} {}'.format(cost, self._runtime))
 
 
-class UniformCost(SearchStrategy, ABC):
+class UCS(SearchStrategy, ABC):
     def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
 
