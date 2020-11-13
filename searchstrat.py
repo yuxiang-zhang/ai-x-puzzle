@@ -72,7 +72,7 @@ class SearchStrategy(ABC):
 
         while stack:
             self._sol_logger.info(stack.pop())
-        self._sol_logger.info(cost, self._runtime)
+        self._sol_logger.info('{} {}'.format(cost, self._runtime))
 
 
 class UCS(SearchStrategy, ABC):
