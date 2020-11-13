@@ -20,6 +20,7 @@ class SearchStrategy(ABC):
         logging.basicConfig(filename='out/dump.log', filemode='w', format='%(message)s', level='INFO')
         self._search_logger = logging.getLogger()
         self._sol_logger = logging.getLogger()
+        self._runtime = 0
         super().__init__()
 
     @abstractmethod
@@ -57,6 +58,7 @@ class SearchStrategy(ABC):
 
     def retrieve_solution(self):
         state = self._game.state
+        cost = state.path_cost
         stack = []
         while state.from_state is not None:
             sol_file_entry = ' '.join(map(str, (state.last_moved_tile, state.path_cost - state.from_state.path_cost, state)))
@@ -68,6 +70,7 @@ class SearchStrategy(ABC):
 
         while stack:
             self._sol_logger.info(stack.pop())
+        self._sol_logger.info(cost, self._runtime)
 
 
 class UniformCost(SearchStrategy, ABC):
