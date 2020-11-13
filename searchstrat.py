@@ -99,7 +99,7 @@ class UCS(SearchStrategy, ABC):
             if puzzle.is_goal():
                 self._runtime = time() - start_time
                 break
-            self.update_open_list(puzzle.state)
+            self.update_open_list(puzzle.successor())
         pass
 
 class GBFS(SearchStrategy, ABC):
