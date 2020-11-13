@@ -21,7 +21,7 @@ class SearchStrategy(ABC):
 
     def setup_loggers(self, puzzle_num=-1):
         filename = 'out/{}_{}_'.format(puzzle_num, str(self))
-        logging.basicConfig('out/dump.log', 'w', format='%(message)s', level='INFO')
+        logging.basicConfig(filename='out/dump.log', filemode='w', format='%(message)s', level='INFO')
         self._search_logger = logging.getLogger('.'.join(['search', str(self), str(puzzle_num)]))
         self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
         self._sol_logger = logging.getLogger('.'.join(['sol', str(self), str(puzzle_num)]))
