@@ -89,7 +89,7 @@ class SearchStrategy(ABC):
         self._sol_logger.info('{} {}'.format(cost, self._runtime))
 
 
-class UniformCost(SearchStrategy, ABC):
+class UCS(SearchStrategy, ABC):
     def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
 
