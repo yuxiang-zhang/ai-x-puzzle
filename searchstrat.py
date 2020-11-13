@@ -21,6 +21,17 @@ class SearchStrategy(ABC):
         self._runtime = 0
         super().__init__()
 
+    def setup_loggers(self, puzzle_num=-1):
+        filename = 'out/{}_{}_'.format(puzzle_num, str(self))
+        self._search_logger = logging.getLogger('.'.join(['search', self.name(), str(puzzle_num)]))
+        self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
+        self._sol_logger = logging.getLogger('.'.join(['sol', self.name(), str(puzzle_num)]))
+        self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
+
+    @abstractmethod
+    def name(self):
+        pass
+
     @abstractmethod
     def evaluation_function(self, new_state):
         """Evaluation function to be used to get/estimate the cost for a path. """
@@ -71,16 +82,10 @@ class SearchStrategy(ABC):
 
 
 class UCS(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0(), puzzle_num=0):
+    def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
-        if not logging_disabled:
-            filename = 'out/{}_{}_'.format(puzzle_num, str(self))
-            self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
-            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
-            self._sol_logger = logging.getLogger('.'.join(map(str, ['sol', self, puzzle_num])))
-            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
-    def __str__(self):
+    def name(self):
         return 'ucs'
 
     def evaluation_function(self, new_state):
@@ -98,16 +103,10 @@ class UCS(SearchStrategy, ABC):
         pass
 
 class GBFS(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0(), puzzle_num=0):
+    def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
-        if not logging_disabled:
-            filename = 'out/{}_{}_'.format(puzzle_num, str(self))
-            self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
-            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
-            self._sol_logger = logging.getLogger('.'.join(map(str, ['sol', self, puzzle_num])))
-            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
-    def __str__(self):
+    def name(self):
         return 'gbfs-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
@@ -118,16 +117,10 @@ class GBFS(SearchStrategy, ABC):
 
 
 class AStar(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0(), puzzle_num=0):
+    def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
-        if not logging_disabled:
-            filename = 'out/{}_{}_'.format(puzzle_num, str(self))
-            self._search_logger = logging.getLogger('.'.join(map(str, ['search', self, puzzle_num])))
-            self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
-            self._sol_logger = logging.getLogger('.'.join(map(str, ['sol', self, puzzle_num])))
-            self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
-    def __str__(self):
+    def name(self):
         return 'astar-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
