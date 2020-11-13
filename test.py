@@ -7,13 +7,21 @@ from state import State
 
 class TestPuzzle(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        searchstrat.logging_disabled = True
+
+    @classmethod
+    def tearDownClass(cls):
+        searchstrat.logging_disabled = False
+
     def test_goal(self):
         self.assertTrue(puzzle.Puzzle8((1, 3, 5, 7, 2, 4, 6, 0)).is_goal())
         self.assertFalse(puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0)).is_goal())
 
     def test_update_open_list_with_successor_function(self):
         game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        strat = searchstrat.UniformCost(game=game)
+        strat = searchstrat.AStar(game=game, puzzle_num=-1)
         strat.update_open_list()
         init_state = State((4, 2, 3, 1, 5, 6, 7, 0))
         successors = [(1, State((4, 2, 3, 0, 5, 6, 7, 1), 1, init_state)),
