@@ -22,7 +22,7 @@ class SearchStrategy(ABC):
         super().__init__()
 
     def setup_loggers(self, puzzle_num=-1):
-        filename = 'out/{}_{}_'.format(puzzle_num, str(self))
+        filename = 'out/{}_{}_'.format(puzzle_num, self.name())
         self._search_logger = logging.getLogger('.'.join(['search', self.name(), str(puzzle_num)]))
         self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
         self._sol_logger = logging.getLogger('.'.join(['sol', self.name(), str(puzzle_num)]))
