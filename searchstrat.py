@@ -111,7 +111,7 @@ class UCS(SearchStrategy, ABC):
                 break
             self.update_open_list(puzzle.successor())
 
-        if puzzle.is_goal:
+        if puzzle.is_goal():
             self.retrieve_solution(puzzle.state)
             self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
         else:
