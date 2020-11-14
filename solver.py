@@ -39,6 +39,7 @@ def gen_random_puzzle(count=50, x=8):
     return np.array(list(map(np.random.permutation, X)))
 
 if __name__ == '__main__':
-    # solve_puzzle_file('puzzles/samplePuzzles.txt')
     # np.savetxt('puzzles/randomPuzzles.txt', gen_random_puzzle(), fmt='%u')
-    solve_puzzle_file('puzzles/randomPuzzles.txt')
+    # solve_puzzle_file('puzzles/randomPuzzles.txt')
+    # solve_puzzle_file('puzzles/samplePuzzles.txt')
+    solve_puzzle_file('puzzles/inputPuzzles.txt')
