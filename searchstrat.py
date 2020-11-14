@@ -15,7 +15,6 @@ class SearchStrategy(ABC):
         self._open_list = PriorityQueue()
         # visited_state -> parent_state
         self._closed_list = {}
-        self._runtime = 0
         super().__init__()
 
     def setup_loggers(self, puzzle_num=-1):
@@ -29,7 +28,6 @@ class SearchStrategy(ABC):
     def reset(self):
         self._open_list.queue.clear()
         self._closed_list.clear()
-        self._runtime = 0
 
     @property
     def heuristic(self):
@@ -72,8 +70,13 @@ class SearchStrategy(ABC):
         return None # empty open list
 
     def retrieve_solution(self, last_state):
+        """
+        Track back the from_states beginning with the last state reached by the search algorithm,
+        which is expected to be the goal state.
+
+        The search algorithm calls this method after the search is complete (i.e. reaches goal state).
+        """
         state = last_state
-        cost = state.path_cost
         stack = []
         while state.from_state is not None:
             sol_file_entry = ' '.join(map(str, (state.last_moved_tile, state.path_cost - state.from_state.path_cost, state)))
@@ -85,7 +88,6 @@ class SearchStrategy(ABC):
 
         while stack:
             self._sol_logger.info(stack.pop())
-        self._sol_logger.info('{} {}'.format(cost, self._runtime))
 
 
 class UCS(SearchStrategy, ABC):
