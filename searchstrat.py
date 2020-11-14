@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from queue import PriorityQueue
+from time import time
 from heuristics import Heuristic, H0
 
 class SearchStrategy(ABC):
@@ -27,6 +28,15 @@ class SearchStrategy(ABC):
     def reset(self):
         self._open_list.queue.clear()
         self._closed_list.clear()
+
+    def fail(self):
+        search_file_handler = self._search_logger.handlers[0]
+        search_file_handler.stream.seek(0)
+        search_file_handler.stream.truncate(0)
+        search_file_handler.terminator = ''
+        self._search_logger.info('no solution')
+        self._sol_logger.handlers[0].terminator = ''
+        self._sol_logger.info('no solution')
 
     @property
     def heuristic(self):
@@ -100,6 +110,14 @@ class UCS(SearchStrategy, ABC):
         return new_state.path_cost, 0
 
     def search(self, puzzle):
+        start_time = time()
+        self._open_list.put((0, puzzle.state))
+        while self._open_list:
+            _, puzzle.state = self.get_best_next_state(puzzle.state)
+            if puzzle.is_goal():
+                self._runtime = time() - start_time
+                break
+            self.update_open_list(puzzle.successor())
         pass
 
 class GBFS(SearchStrategy, ABC):

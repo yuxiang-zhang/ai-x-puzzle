@@ -1,6 +1,7 @@
 import heuristics
 import puzzle
 import searchstrat
+import multiprocessing
 
 def solve_puzzle_file(file):
     strats = [
@@ -16,8 +17,21 @@ def solve_puzzle_file(file):
                 init_config = tuple(map(int, config_str.split(' ')))
                 game = puzzle.Puzzle8(init_config)
                 strat.setup_loggers(i)
-                strat.search(game)
+                p = multiprocessing.Process(target=strat.search, args=tuple([game]))
+                if has_process_timeout(p, 60):
+                    strat.fail()
                 strat.reset()
+
+def has_process_timeout(process: multiprocessing.Process, timer: int):
+    process.start()
+    process.join(timer)
+
+    if process.is_alive():
+        process.terminate()
+        process.join()
+        return True
+
+    return False
 
 if __name__ == '__main__':
     solve_puzzle_file('puzzles/samplePuzzles.txt')
