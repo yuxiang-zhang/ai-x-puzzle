@@ -17,7 +17,6 @@ def solve_puzzle_file(file):
                 game = puzzle.Puzzle8(init_config)
                 strat.setup_loggers(i)
                 strat.search(game)
-                strat.retrieve_solution(game.state)
                 strat.reset()
 
 if __name__ == '__main__':
