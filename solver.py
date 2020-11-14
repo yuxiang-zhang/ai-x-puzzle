@@ -2,6 +2,7 @@ import heuristics
 import puzzle
 import searchstrat
 import multiprocessing
+import numpy as np
 
 def solve_puzzle_file(file):
     strats = [
@@ -33,5 +34,12 @@ def has_process_timeout(process: multiprocessing.Process, timer: int):
 
     return False
 
+def gen_random_puzzle(count=50, x=8):
+    import itertools
+    all_perm = np.array(list(itertools.permutations(range(x))))
+    return all_perm[np.random.randint(0, all_perm.shape[0], size=count)]
+
 if __name__ == '__main__':
-    solve_puzzle_file('puzzles/samplePuzzles.txt')
+    # solve_puzzle_file('puzzles/samplePuzzles.txt')
+    # np.savetxt('puzzles/randomPuzzles.txt', gen_random_puzzle(), fmt='%u')
+    solve_puzzle_file('puzzles/randomPuzzles.txt')
