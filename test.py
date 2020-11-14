@@ -23,8 +23,8 @@ class TestPuzzle(unittest.TestCase):
     def test_set_state(self):
         game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
         newgame = puzzle.Puzzle8((1, 3, 5, 7, 2, 4, 6, 0))
-        game.state = newgame
-        self.assertEqual(game, newgame)
+        game.state = newgame.state
+        self.assertEqual(game.state, newgame.state)
 
     def test_goal(self):
         self.assertTrue(puzzle.Puzzle8((1, 3, 5, 7, 2, 4, 6, 0)).is_goal())
