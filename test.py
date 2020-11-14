@@ -9,16 +9,30 @@ class TestPuzzle(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        searchstrat.logging_disabled = True
+        pass
 
     @classmethod
     def tearDownClass(cls):
-        searchstrat.logging_disabled = False
+        pass
+
+    def test_get_state(self):
+        game = puzzle.Puzzle8([4, 2, 3, 1, 5, 6, 7, 0])
+        self.assertEqual(game.state, State((4, 2, 3, 1, 5, 6, 7, 0)))
+
+    def test_set_state(self):
+        game = puzzle.Puzzle8([4, 2, 3, 1, 5, 6, 7, 0])
+        newgame = puzzle.Puzzle8([1, 3, 5, 7, 2, 4, 6, 0])
+        game = newgame
+        self.assertEqual(game, newgame)
 
     def test_goal(self):
-        self.assertTrue(puzzle.Puzzle8((1, 3, 5, 7, 2, 4, 6, 0)).is_goal())
-        self.assertFalse(puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0)).is_goal())
+        self.assertTrue(puzzle.Puzzle8([1, 3, 5, 7, 2, 4, 6, 0]).is_goal())
+        self.assertFalse(puzzle.Puzzle8([4, 2, 3, 1, 5, 6, 7, 0]).is_goal())
 
+    def test_gen_config(self):
+        game = puzzle.Puzzle8([4, 2, 3, 1, 5, 6, 7, 0])
+        self.assertEqual(game.gen_config(0, 7), tuple((0, 2, 3, 1, 5, 6, 7, 4)))
+        
     def test_update_open_list_with_successor_function(self):
         game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
         strat = searchstrat.AStar()
