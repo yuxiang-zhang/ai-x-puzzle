@@ -110,14 +110,6 @@ class UCS(SearchStrategy, ABC):
         return new_state.path_cost, 0
 
     def search(self, puzzle):
-        start_time = time()
-        self._open_list.put((0, puzzle.state))
-        while self._open_list:
-            _, puzzle.state = self.get_best_next_state(puzzle.state)
-            if puzzle.is_goal():
-                self._runtime = time() - start_time
-                break
-            self.update_open_list(puzzle.successor())
         pass
 
 class GBFS(SearchStrategy, ABC):
