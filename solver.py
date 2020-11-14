@@ -35,9 +35,8 @@ def has_process_timeout(process: multiprocessing.Process, timer: int):
     return False
 
 def gen_random_puzzle(count=50, x=8):
-    import itertools
-    all_perm = np.array(list(itertools.permutations(range(x))))
-    return all_perm[np.random.randint(0, all_perm.shape[0], size=count)]
+    X = np.repeat(np.arange(x).reshape(1,-1), count, axis=0)
+    return np.array(list(map(np.random.permutation, X)))
 
 if __name__ == '__main__':
     # solve_puzzle_file('puzzles/samplePuzzles.txt')
