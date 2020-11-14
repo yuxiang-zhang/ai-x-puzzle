@@ -1,9 +1,7 @@
-import heapq
 import unittest
 import puzzle
 import searchstrat
 from state import State
-
 
 class TestPuzzle(unittest.TestCase):
 
@@ -13,6 +11,9 @@ class TestPuzzle(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        import os, glob
+        for filename in glob.glob("out/-1*"):
+            os.remove(filename)
         pass
 
     def test_get_state(self):
@@ -32,8 +33,9 @@ class TestPuzzle(unittest.TestCase):
     def test_gen_config(self):
         game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
         self.assertEqual(game.gen_config(0, 7), tuple((0, 2, 3, 1, 5, 6, 7, 4)))
-        
+
     def test_update_open_list_with_successor_function(self):
+        import heapq
         game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
         strat = searchstrat.AStar()
         strat.update_open_list(game.successor())
@@ -49,6 +51,16 @@ class TestPuzzle(unittest.TestCase):
     def test_state_str(self):
         self.assertRegex(str(State((4,2,3,0,5,6,7,1))), '4 2 3 0 5 6 7 1')
 
+    def test_searchstrat_fail(self):
+        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
+        strat = searchstrat.AStar()
+        strat.setup_loggers()
+        strat.search(game)
+        strat.fail()
+        with open('out/-1_astar-h0_search.txt', 'r') as f:
+            self.assertEqual(f.read(), 'no solution')
+        with open('out/-1_astar-h0_solution.txt', 'r') as f:
+            self.assertEqual(f.read(), 'no solution')
 
 if __name__ == '__main__':
     unittest.main()
