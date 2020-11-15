@@ -112,7 +112,6 @@ class UCS(SearchStrategy, ABC):
     def search(self, puzzle):
         runtime = time()
         self._open_list.put((0, puzzle.state))
-
         while self._open_list:
             _, puzzle.state = self.get_best_next_state(puzzle.state)
             if puzzle.is_goal():
@@ -152,4 +151,19 @@ class AStar(SearchStrategy, ABC):
         return new_state.path_cost, self._heuristic.estimate(new_state.config)
 
     def search(self, puzzle):
+        runtime = time()
+        self._open_list.put((0, puzzle.state))
+
+        while self._open_list:
+            _, puzzle.state = self.get_best_next_state(puzzle.state)
+            if puzzle.is_goal():
+                runtime = time() - runtime
+                break
+            self.update_open_list(puzzle.successor())
+
+        if puzzle.is_goal():
+            self.retrieve_solution(puzzle.state)
+            self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+        else:
+            self.fail()
         pass
