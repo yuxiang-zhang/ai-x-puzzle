@@ -1,17 +1,19 @@
-import heuristics
 import puzzle
+import heuristics
 import searchstrat
 import multiprocessing
 import numpy as np
 
-def solve_puzzle_file(file):
-    strats = [
-        searchstrat.UCS(),
-        searchstrat.GBFS(heuristics.H1()),
-        searchstrat.GBFS(heuristics.H2()),
-        searchstrat.AStar(heuristics.H1()),
-        searchstrat.AStar(heuristics.H2())
-    ]
+
+all_strats = (
+    searchstrat.UCS(),
+    searchstrat.GBFS(heuristics.H1()),
+    searchstrat.GBFS(heuristics.H2()),
+    searchstrat.AStar(heuristics.H1()),
+    searchstrat.AStar(heuristics.H2())
+)
+
+def solve_puzzle_file(file, strats=all_strats):
     with open(file, 'r') as f:
         for i, config_str in enumerate(f.readlines()):
             for strat in strats:
