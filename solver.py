@@ -50,7 +50,6 @@ def compile_stats(dir = 'out/', strats=all_strats, count=50):
                       'Avg Cost', 'Sum Cost',
                       'Avg Runtime', 'Sum Runtime']
     compiled_df = pd.DataFrame(columns=compiled_names)
-    n = count
     for algo in strats:
         cost = np.repeat(0, count)
         runtime = np.repeat(60, count).astype(np.float)
@@ -91,6 +90,6 @@ def compile_stats(dir = 'out/', strats=all_strats, count=50):
 if __name__ == '__main__':
     # np.savetxt('puzzles/randomPuzzles.txt', gen_random_puzzle(), fmt='%u')
     # solve_puzzle_file('puzzles/randomPuzzles.txt')
-    # solve_puzzle_file('puzzles/samplePuzzles.txt')
+    solve_puzzle_file('puzzles/samplePuzzles.txt')
     # solve_puzzle_file('puzzles/inputPuzzles.txt')
-    print(compile_stats().T)
+    print(compile_stats(count=3).T)
