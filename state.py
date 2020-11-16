@@ -79,7 +79,7 @@ class State2D:
         self._last_moved_tile = last_moved_tile
 
     def __hash__(self):
-        val = tuple(self._config.tolist())
+        val = self._config.tobytes()
         return hash(val)
 
     def __eq__(self, other):
@@ -93,4 +93,4 @@ class State2D:
         return NotImplemented
 
     def __str__(self):
-        return ' '.join(map(str, self._config.tolist()))
+        return np.array2string(self._config.reshape(-1))[1:-1]
