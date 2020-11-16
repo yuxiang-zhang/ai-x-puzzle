@@ -8,7 +8,7 @@ class SearchStrategy(ABC):
     def __init__(self, h_func:Heuristic = H0()):
         # logger to be defined in subclasses
         self._search_logger = logging.getLogger()
-        self._sol_logger = logging.getLogger()
+        self._solution_logger = logging.getLogger()
         # heuristic function
         self._heuristic = h_func
         # pq sorted by f(n)
@@ -22,8 +22,8 @@ class SearchStrategy(ABC):
         logging.basicConfig(filename='out/dump.log', filemode='w', format='%(message)s', level='INFO')
         self._search_logger = logging.getLogger('.'.join(['search', str(self), str(puzzle_num)]))
         self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
-        self._sol_logger = logging.getLogger('.'.join(['sol', str(self), str(puzzle_num)]))
-        self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
+        self._solution_logger = logging.getLogger('.'.join(['sol', str(self), str(puzzle_num)]))
+        self._solution_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
 
     def reset(self):
         self._open_list.queue.clear()
@@ -31,12 +31,15 @@ class SearchStrategy(ABC):
 
     def fail(self):
         search_file_handler = self._search_logger.handlers[0]
+        solution_file_handler = self._solution_logger.handlers[0]
         search_file_handler.stream.seek(0)
         search_file_handler.stream.truncate(0)
         search_file_handler.terminator = ''
+        solution_file_handler.stream.seek(0)
+        solution_file_handler.stream.truncate(0)
+        solution_file_handler.terminator = ''
         self._search_logger.info('no solution')
-        self._sol_logger.handlers[0].terminator = ''
-        self._sol_logger.info('no solution')
+        self._solution_logger.info('no solution')
 
     @property
     def heuristic(self):
@@ -96,7 +99,7 @@ class SearchStrategy(ABC):
         stack.append(sol_file_entry)
 
         while stack:
-            self._sol_logger.info(stack.pop())
+            self._solution_logger.info(stack.pop())
 
 
 class GBFS(SearchStrategy, ABC):
@@ -146,7 +149,7 @@ class AStar(SearchStrategy, ABC):
 
         if puzzle.is_goal():
             self.retrieve_solution(puzzle.state)
-            self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+            self._solution_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
         else:
             self.fail()
         pass
