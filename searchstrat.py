@@ -110,7 +110,16 @@ class GBFS(SearchStrategy, ABC):
         return 0, self._heuristic.estimate(new_state.config)
 
     def search(self, puzzle):
-        pass
+        self._open_list.put((sum(self.evaluation_function(puzzle.state)), puzzle.state))
+        while not self._open_list.empty():
+            if puzzle.is_goal():
+                self.retrieve_solution(puzzle.state)
+                self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+                return
+            else:
+                self.update_open_list(puzzle.successor())
+                _, puzzle.state = self.get_best_next_state(puzzle.state)
+        self.fail()
 
 
 class AStar(SearchStrategy, ABC):
