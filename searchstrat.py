@@ -102,15 +102,39 @@ class SearchStrategy(ABC):
             self._solution_logger.info(stack.pop())
 
 
-class UCS(SearchStrategy, ABC):
+class GBFS(SearchStrategy, ABC):
     def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
 
     def __str__(self):
-        return 'ucs'
+        return 'gbfs-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
-        return new_state.path_cost, 0
+        return 0, self._heuristic.estimate(new_state.config)
+
+    def search(self, puzzle):
+        runtime = time()
+        self._open_list.put((sum(self.evaluation_function(puzzle.state)), puzzle.state))
+        while not self._open_list.empty():
+            if puzzle.is_goal():
+                runtime = time() - runtime
+                self.retrieve_solution(puzzle.state)
+                self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+                return
+            self.update_open_list(puzzle.successor())
+            _, puzzle.state = self.get_best_next_state(puzzle.state)
+        self.fail()
+
+
+class AStar(SearchStrategy, ABC):
+    def __init__(self, h_func:Heuristic = H0()):
+        super().__init__(h_func)
+
+    def __str__(self):
+        return 'astar-' + str(self._heuristic)
+
+    def evaluation_function(self, new_state):
+        return new_state.path_cost, self._heuristic.estimate(new_state.config)
 
     def search(self, puzzle):
         runtime = time()
@@ -130,29 +154,13 @@ class UCS(SearchStrategy, ABC):
             self.fail()
         pass
 
-class GBFS(SearchStrategy, ABC):
+
+class UCS(AStar, ABC):
     def __init__(self, h_func:Heuristic = H0()):
         super().__init__(h_func)
 
     def __str__(self):
-        return 'gbfs-' + str(self._heuristic)
+        return 'ucs'
 
     def evaluation_function(self, new_state):
-        return 0, self._heuristic.estimate(new_state.config)
-
-    def search(self, puzzle):
-        pass
-
-
-class AStar(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0()):
-        super().__init__(h_func)
-
-    def __str__(self):
-        return 'astar-' + str(self._heuristic)
-
-    def evaluation_function(self, new_state):
-        return new_state.path_cost, self._heuristic.estimate(new_state.config)
-
-    def search(self, puzzle):
-        pass
+        return new_state.path_cost, 0

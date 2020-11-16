@@ -3,6 +3,7 @@ import puzzle
 import searchstrat
 from state import State
 import os, glob
+import heuristics
 
 class TestPuzzle(unittest.TestCase):
 
@@ -61,6 +62,16 @@ class TestPuzzle(unittest.TestCase):
             self.assertEqual(f.read(), 'no solution')
         with open('out/-1_ucs_solution.txt', 'r') as f:
             self.assertEqual(f.read(), 'no solution')
+
+    def test_gbfs_search_H1(self):
+        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
+        strat = searchstrat.GBFS(heuristics.H1())
+        strat.search(game)
+
+    def test_gbfs_search_H2(self):
+        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
+        strat = searchstrat.GBFS(heuristics.H2())
+        strat.search(game)
 
 if __name__ == '__main__':
     unittest.main()
