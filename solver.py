@@ -41,7 +41,7 @@ def gen_random_puzzle(count=50, x=8):
     X = np.repeat(np.arange(x).reshape(1,-1), count, axis=0)
     return np.array(list(map(np.random.permutation, X)))
 
-def compile_stats(dir = 'out/', strats=all_strats, count=50):
+def compile_stats(dir_path ='out/', strats=all_strats, count=50):
     # search_names = ['f(n)', 'g(n)', 'h(n)'] + list(range(8))
     # solution_names = ['token', 'movecost'] + list(range(8))
     compiled_names = ['Avg Search Length', 'Sum Search Length',
@@ -56,7 +56,7 @@ def compile_stats(dir = 'out/', strats=all_strats, count=50):
         search_path_total = 0
         solution_path_total = 0
         nosol_count = 0
-        file_path = '{:s}{:s}_{:s}_{:s}.txt'.format(dir, '{:d}', str(algo), '{:s}')
+        file_path = '{:s}{:s}_{:s}_{:s}.txt'.format(dir_path, '{:d}', str(algo), '{:s}')
         for i in range(count):
             search_file_path = file_path.format(i, 'search')
             solution_file_path = file_path.format(i, 'solution')
