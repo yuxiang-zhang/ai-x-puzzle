@@ -68,12 +68,12 @@ class Puzzle:
     def state(self, state):
         self._state = state
 
-    def __init__(self, init_config: tuple, shape, goals: []):
-        if not goals:
+    def __init__(self, init_config: tuple, goals: [], shape):
+        self._goals = [hash(np.array(goal).tobytes()) for goal in goals if len(goal) == len(goals[0])]
+        if not self._goals:
             raise Exception('No goal was defined. ')
         # initial state
         self._state = State2D(np.array(init_config).reshape(shape), 0)
-        self._goals = [hash(np.array(goal).tobytes()) for goal in goals]
 
     def is_goal(self):
         return hash(self._state) in self._goals
