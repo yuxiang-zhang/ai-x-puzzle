@@ -119,7 +119,7 @@ class GBFS(SearchStrategy, ABC):
             if puzzle.is_goal():
                 runtime = time() - runtime
                 self.retrieve_solution(puzzle.state)
-                self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+                self._solution_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
                 return
             self.update_open_list(puzzle.successor())
             _, puzzle.state = self.get_best_next_state(puzzle.state)
