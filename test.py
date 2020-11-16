@@ -2,6 +2,7 @@ import unittest
 import puzzle
 import searchstrat
 from state import State
+import os, glob
 import heuristics
 
 class TestPuzzle(unittest.TestCase):
@@ -12,7 +13,6 @@ class TestPuzzle(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        import os, glob
         for filename in glob.glob("out/-1*"):
             os.remove(filename)
         pass
@@ -38,7 +38,7 @@ class TestPuzzle(unittest.TestCase):
     def test_update_open_list_with_successor_function(self):
         import heapq
         game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        strat = searchstrat.AStar()
+        strat = searchstrat.UCS()
         strat.update_open_list(game.successor())
         init_state = State((4, 2, 3, 1, 5, 6, 7, 0))
         successors = [(1, State((4, 2, 3, 0, 5, 6, 7, 1), 1, init_state)),
@@ -53,14 +53,14 @@ class TestPuzzle(unittest.TestCase):
         self.assertRegex(str(State((4,2,3,0,5,6,7,1))), '4 2 3 0 5 6 7 1')
 
     def test_searchstrat_fail(self):
-        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        strat = searchstrat.AStar()
+        game = puzzle.Puzzle8((1, 2, 3, 4, 5, 6, 0, 7))
+        strat = searchstrat.UCS()
         strat.setup_loggers()
         strat.search(game)
         strat.fail()
-        with open('out/-1_astar-h0_search.txt', 'r') as f:
+        with open('out/-1_ucs_search.txt', 'r') as f:
             self.assertEqual(f.read(), 'no solution')
-        with open('out/-1_astar-h0_solution.txt', 'r') as f:
+        with open('out/-1_ucs_solution.txt', 'r') as f:
             self.assertEqual(f.read(), 'no solution')
 
     def test_gbfs_search_H1(self):
