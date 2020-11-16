@@ -1,5 +1,4 @@
-import itertools
-
+import numpy as np
 
 class State:
     MAX_MOVES = 31
@@ -73,14 +72,14 @@ class State2D:
     def path_cost(self, cost):
         self._path_cost = cost
 
-    def __init__(self, init_config: [[]], cost=MAX_MOVES, from_state=None, last_moved_tile=0):
+    def __init__(self, init_config: np.ndarray, cost=MAX_MOVES, from_state=None, last_moved_tile=0):
         self._config = init_config
         self._path_cost = cost
         self._from_state = from_state
         self._last_moved_tile = last_moved_tile
 
     def __hash__(self):
-        val = tuple(tuple(x) for x in self._config)
+        val = tuple(self._config.tolist())
         return hash(val)
 
     def __eq__(self, other):
@@ -94,4 +93,4 @@ class State2D:
         return NotImplemented
 
     def __str__(self):
-        return ' '.join(map(str, list(itertools.chain.from_iterable(self._config))))
+        return ' '.join(map(str, self._config.tolist()))
