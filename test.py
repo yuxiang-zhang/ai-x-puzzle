@@ -2,6 +2,7 @@ import unittest
 import puzzle
 import searchstrat
 from state import State
+import os, glob
 
 class TestPuzzle(unittest.TestCase):
 
@@ -11,7 +12,6 @@ class TestPuzzle(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        import os, glob
         for filename in glob.glob("out/-1*"):
             os.remove(filename)
         pass
