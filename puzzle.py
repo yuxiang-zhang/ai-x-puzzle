@@ -2,8 +2,7 @@ from state import State, State2D
 import numpy as np
 
 class Puzzle8:
-    goal1 = State((1, 2, 3, 4, 5, 6, 7, 0))
-    goal2 = State((1, 3, 5, 7, 2, 4, 6, 0))
+    goals = (State((1, 2, 3, 4, 5, 6, 7, 0)), State((1, 3, 5, 7, 2, 4, 6, 0)))
 
     @property
     def state(self):
@@ -13,14 +12,15 @@ class Puzzle8:
     def state(self, state):
         self._state = state
 
-    def __init__(self, init_config: tuple):
+    def __init__(self, init_config: tuple, goals=goals, shape=(2,4)):
         if len(init_config) != 8:
-            raise Exception('Bad length for an 8-puzzle')
+            raise Exception('Bad length for an 8-puzzle. ')
+        self._goals = tuple(hash(goal) for goal in goals)
         # initial state
         self._state = State(init_config, 0)
 
     def is_goal(self):
-        return self._state in [Puzzle8.goal1, Puzzle8.goal2]
+        return hash(self._state) in self._goals
 
     def gen_config(self, blank, tile):
         conf = list(self._state.config)
@@ -69,7 +69,7 @@ class Puzzle:
         self._state = state
 
     def __init__(self, init_config: tuple, goals: [], shape):
-        self._goals = [hash(np.array(goal).tobytes()) for goal in goals if len(goal) == len(goals[0])]
+        self._goals = tuple(hash(np.array(goal).tobytes()) for goal in goals if len(goal) == len(goals[0]))
         if not self._goals:
             raise Exception('No goal was defined. ')
         # initial state
