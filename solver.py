@@ -5,26 +5,7 @@ import multiprocessing
 import numpy as np
 import pandas as pd
 
-x3x3_goal = [tuple(range(9)), tuple((1,2,3,4,5,6,7,8,0))]
-x4x4_goal = [tuple(range(16)), tuple(list(range(1,16))+[0])]
-
-all_strats = (
-    searchstrat.UCS(heuristics.H0(puzzle.Puzzle8.goals)),
-    searchstrat.GBFS(heuristics.H1(puzzle.Puzzle8.goals)),
-    searchstrat.GBFS(heuristics.H2(puzzle.Puzzle8.goals)),
-    searchstrat.GBFS(heuristics.H3(puzzle.Puzzle8.goals)),
-    searchstrat.GBFS(heuristics.H4(puzzle.Puzzle8.goals)),
-    searchstrat.GBFS(heuristics.H5(puzzle.Puzzle8.goals)),
-    searchstrat.AStar(heuristics.H0(puzzle.Puzzle8.goals)),
-    searchstrat.AStar(heuristics.H1(puzzle.Puzzle8.goals)),
-    searchstrat.AStar(heuristics.H2(puzzle.Puzzle8.goals)),
-    searchstrat.AStar(heuristics.H3(puzzle.Puzzle8.goals)),
-    searchstrat.AStar(heuristics.H4(puzzle.Puzzle8.goals)),
-    searchstrat.AStar(heuristics.H5(puzzle.Puzzle8.goals)),
-    # searchstrat.AStar(heuristics.H4(x4x4_goal))
-)
-
-def solve_puzzle_file(file, strats=all_strats, goals=None, shape=None):
+def solve_puzzle_file(file, strats, goals=None, shape=None, countdown=60):
     with open(file, 'r') as f:
         for i, config_str in enumerate(f.readlines()):
             for strat in strats:
@@ -35,7 +16,7 @@ def solve_puzzle_file(file, strats=all_strats, goals=None, shape=None):
                     game = puzzle.Puzzle(init_config, goals, shape)
                 strat.setup_loggers(i)
                 p = multiprocessing.Process(target=strat.search, args=tuple([game]))
-                if has_process_timeout(p, 60):
+                if has_process_timeout(p, countdown):
                     strat.fail()
                 strat.reset()
 
@@ -54,7 +35,7 @@ def gen_random_puzzle(count=50, x=8):
     X = np.repeat(np.arange(x).reshape(1,-1), count, axis=0)
     return np.array(list(map(np.random.permutation, X)))
 
-def compile_stats(dir_path ='out/', strats=all_strats, count=50):
+def compile_stats(strats, count=50, dir_path ='out/'):
     # search_names = ['f(n)', 'g(n)', 'h(n)'] + list(range(8))
     # solution_names = ['token', 'movecost'] + list(range(8))
     compiled_names = ['Avg Search Length', 'Sum Search Length',
@@ -101,9 +82,32 @@ def compile_stats(dir_path ='out/', strats=all_strats, count=50):
     return compiled_df
 
 if __name__ == '__main__':
-    # np.savetxt('puzzles/randomPuzzles.txt', gen_random_puzzle(), fmt='%u')
-    # solve_puzzle_file('puzzles/randomPuzzles.txt')
-    solve_puzzle_file('puzzles/samplePuzzles.txt')
-    # solve_puzzle_file('puzzles/inputPuzzles.txt')
-    # solve_puzzle_file('puzzles/input.txt', goals=x4x4_goal, shape=(4,4))
-    print(compile_stats(count=3).T)
+    x3x3_goal = [tuple(range(9)), tuple((1,2,3,4,5,6,7,8,0))]
+    x4x4_goal = [tuple(range(16)), tuple(list(range(1,16))+[0])]
+
+    countdown = 5
+
+    all_strats = (
+        searchstrat.UCS(heuristics.H0(puzzle.Puzzle8.goals)),
+        searchstrat.GBFS(heuristics.H1(puzzle.Puzzle8.goals)),
+        searchstrat.GBFS(heuristics.H2(puzzle.Puzzle8.goals)),
+        searchstrat.GBFS(heuristics.H3(puzzle.Puzzle8.goals)),
+        searchstrat.GBFS(heuristics.H4(puzzle.Puzzle8.goals)),
+        searchstrat.GBFS(heuristics.H5(puzzle.Puzzle8.goals)),
+        searchstrat.AStar(heuristics.H0(puzzle.Puzzle8.goals)),
+        searchstrat.AStar(heuristics.H1(puzzle.Puzzle8.goals)),
+        searchstrat.AStar(heuristics.H2(puzzle.Puzzle8.goals)),
+        searchstrat.AStar(heuristics.H3(puzzle.Puzzle8.goals)),
+        searchstrat.AStar(heuristics.H4(puzzle.Puzzle8.goals)),
+        searchstrat.AStar(heuristics.H5(puzzle.Puzzle8.goals)),
+        searchstrat.AStar(heuristics.H4(x3x3_goal)),
+        searchstrat.AStar(heuristics.H5(x3x3_goal)),
+    )
+
+    np.savetxt('puzzles/randomPuzzles.txt', X=gen_random_puzzle(x=9), fmt='%u')
+    solve_puzzle_file('puzzles/randomPuzzles.txt', all_strats, goals=x3x3_goal, shape=(3,3), countdown=2)
+    # solve_puzzle_file('puzzles/samplePuzzles.txt', all_strats)
+    # solve_puzzle_file('puzzles/inputPuzzles.txt', all_strats)
+    # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3))
+    # solve_puzzle_file('puzzles/4x4.txt', all_strats, goals=x4x4_goal, shape=(4,4))
+    print(compile_stats(all_strats, count=50).T)
