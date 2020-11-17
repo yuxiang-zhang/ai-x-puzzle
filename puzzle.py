@@ -12,7 +12,7 @@ class Puzzle8:
     def state(self, state):
         self._state = state
 
-    def __init__(self, init_config: tuple, goals=goals, shape=(2,4)):
+    def __init__(self, init_config:tuple, goals=goals, shape=(2,4)):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle. ')
         self._goals = tuple(hash(goal) for goal in goals)
@@ -68,7 +68,7 @@ class Puzzle:
     def state(self, state):
         self._state = state
 
-    def __init__(self, init_config: tuple, goals: [], shape):
+    def __init__(self, init_config:tuple, goals: [], shape):
         self._goals = tuple(hash(np.array(goal).tobytes()) for goal in goals if len(goal) == len(goals[0]))
         if not self._goals:
             raise Exception('No goal was defined. ')

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import math
+import numpy as np
 
 goal1 = [1, 2, 3, 4, 5, 6, 7, 0]
 goal2 = [1, 3, 5, 7, 2, 4, 6, 0]
@@ -12,7 +13,7 @@ class Heuristic(ABC):
         self._goals = goals
 
     @abstractmethod
-    def estimate(self, config:list):
+    def estimate(self, config:np.ndarray):
         pass
 
     pass
@@ -28,8 +29,8 @@ class H0(Heuristic, ABC):
     def __str__(self):
         return 'h0'
 
-    def estimate(self, config:list):
-        return 0 if config.index(0) == 7 else 1
+    def estimate(self, config:np.ndarray):
+        return 0 if config.ravel()[-1] == 0 else 1
 
 
 class H1(Heuristic, ABC):
@@ -38,7 +39,7 @@ class H1(Heuristic, ABC):
     def __str__(self):
         return 'h1'
 
-    def estimate(self, config:list):
+    def estimate(self, config:np.ndarray):
         return min(self.get_ouci_distance(config, goal1), self.get_ouci_distance(config, goal2))
 
     def get_ouci_distance(self, list_input: iter, list_goal):
@@ -67,7 +68,7 @@ class H2(Heuristic, ABC):
     def __str__(self):
         return 'h2'
 
-    def estimate(self, config:list):
+    def estimate(self, config:np.ndarray):
         return min(self.get_manh_distance(config, goal1), self.get_manh_distance(config, goal2))
 
     def get_manh_distance(self, list_input: iter, list_goal):
@@ -102,8 +103,8 @@ class H3(Heuristic, ABC):
             if config[i] != x:
                 return i
 
-    def estimate(self, config:list):
-        config = list(config)
+    def estimate(self, config:np.ndarray):
+        config = list(config.ravel().tolist())
         min_moves = 100
         for goal in self._goals:
             moves = 0
@@ -134,8 +135,8 @@ class H4(Heuristic, ABC):
                 cnt += 1
         return cnt
 
-    def estimate(self, config:list):
-        config = list(config)
+    def estimate(self, config:np.ndarray):
+        config = list(config.ravel().tolist())
         min_moves = 100
         for goal in self._goals:
             moves = self.count_mismatch(config, goal)
@@ -150,7 +151,7 @@ class H5(Heuristic, ABC):
         return 'h5'
 
     @staticmethod
-    def count_mismatch(config, goal, row, col):
+    def count_mismatch(config:list, goal:list, row, col):
         ans = [0, 0]
         for i in range(row):
             for j in range(col):
@@ -170,8 +171,8 @@ class H5(Heuristic, ABC):
         ans[1] = ans[1]
         return min(ans)
 
-    def estimate(self, config:list):
-        config = list(config)
+    def estimate(self, config:np.ndarray):
+        config = list(config.ravel().tolist())
         min_moves = 100
         for goal in self._goals:
             moves = self.count_mismatch(config, goal, 2, 4)
@@ -179,9 +180,9 @@ class H5(Heuristic, ABC):
         return min_moves
 
 if __name__ == '__main__':
-    h = H5([(1,2,3,4,5,6,7,0), (1,3,5,7,2,4,6,0)])
+    h = H1([(1,2,3,4,5,6,7,0), (1,3,5,7,2,4,6,0)])
 
-    print(h.estimate([3, 0, 1, 4, 2, 6, 5, 7]))
-    print(h.estimate([6, 3, 4, 7, 1, 2, 5, 0]))
-    print(h.estimate([1, 0, 3, 6, 5, 2, 7, 4]))
-    print(h.estimate([1, 2, 3, 4, 5, 6, 0, 7]))
+    print(h.estimate(np.array([3, 0, 1, 4, 2, 6, 5, 7])))
+    print(h.estimate(np.array([6, 3, 4, 7, 1, 2, 5, 0])))
+    print(h.estimate(np.array([1, 0, 3, 6, 5, 2, 7, 4])))
+    print(h.estimate(np.array([1, 2, 3, 4, 5, 6, 0, 7])))

@@ -112,7 +112,7 @@ class GBFS(SearchStrategy, ABC):
         return 'gbfs-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
-        return 0, self._heuristic.estimate(new_state.config)
+        return 0, self._heuristic.estimate(np.array(new_state.config))
 
     def search(self, puzzle):
         runtime = time()
@@ -136,10 +136,7 @@ class AStar(SearchStrategy, ABC):
         return 'astar-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
-        if isinstance(new_state.config, np.ndarray):
-            return new_state.path_cost, self._heuristic.estimate(new_state.config.ravel().tolist())
-        elif isinstance(new_state.config, list):
-            return new_state.path_cost, self._heuristic.estimate(new_state.config)
+        return new_state.path_cost, self._heuristic.estimate(np.array(new_state.config))
 
     def search(self, puzzle):
         runtime = time()
