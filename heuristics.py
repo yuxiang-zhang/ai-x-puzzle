@@ -88,3 +88,100 @@ class H2(Heuristic, ABC):
 
             distance_list.append(dist_goal)
         return sum(distance_list)
+
+
+class H3(Heuristic, ABC):
+    """    Gaschnig    """
+
+    def __str__(self):
+        return 'h3'
+
+    @staticmethod
+    def first_mismatch(config, goal):
+        for i, x in enumerate(goal):
+            if config[i] != x:
+                return i
+
+    def estimate(self, config):
+        config = list(config)
+        min_moves = 100
+        for goal in self._goals:
+            moves = 0
+            goal_blank = goal.index(0)
+            while tuple(config) != goal:
+                blank = config.index(0)
+                if blank == goal_blank:
+                    mismatch = self.first_mismatch(config, goal)
+                else:
+                    mismatch = config.index(goal[blank])
+                config[blank], config[mismatch] = config[mismatch], config[blank]
+                moves += 1
+            min_moves = min(min_moves, moves)
+        return min_moves
+
+
+class H4(Heuristic, ABC):
+    """ Hamming Distance """
+
+    def __str__(self):
+        return 'h4'
+
+    @staticmethod
+    def count_mismatch(config, goal):
+        cnt = 0
+        for i, x in enumerate(goal):
+            if x != 0 and config[i] != x:
+                cnt += 1
+        return cnt
+
+    def estimate(self, config):
+        config = list(config)
+        min_moves = 100
+        for goal in self._goals:
+            moves = self.count_mismatch(config, goal)
+            min_moves = min(min_moves, moves)
+        return min_moves
+
+
+class H5(Heuristic, ABC):
+    """ Count Rows and Cols Disorder Distance """
+
+    def __str__(self):
+        return 'h5'
+
+    @staticmethod
+    def count_mismatch(config, goal, row, col):
+        ans = [0, 0]
+        for i in range(row):
+            for j in range(col):
+                index = j + i * col
+                if config[index] != goal[index]:
+                    ans[0] += 1
+                    break
+
+        for j in range(col):
+            for i in range(row):
+                index = j + i * col
+                if config[index] != goal[index]:
+                    ans[1] += 1
+                    break
+
+        ans[0] = ans[0]
+        ans[1] = ans[1]
+        return min(ans)
+
+    def estimate(self, config):
+        config = list(config)
+        min_moves = 100
+        for goal in self._goals:
+            moves = self.count_mismatch(config, goal, 2, 4)
+            min_moves = min(min_moves, moves)
+        return min_moves
+
+if __name__ == '__main__':
+    h = H5([(1,2,3,4,5,6,7,0), (1,3,5,7,2,4,6,0)])
+
+    print(h.estimate([3, 0, 1, 4, 2, 6, 5, 7]))
+    print(h.estimate([6, 3, 4, 7, 1, 2, 5, 0]))
+    print(h.estimate([1, 0, 3, 6, 5, 2, 7, 4]))
+    print(h.estimate([1, 2, 3, 4, 5, 6, 0, 7]))
