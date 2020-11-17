@@ -1,13 +1,14 @@
+import logging
 from abc import ABC, abstractmethod
 from queue import PriorityQueue
+from time import time
 from heuristics import Heuristic, H0
-from puzzle import Puzzle8
 
 class SearchStrategy(ABC):
-
-    def __init__(self, h_func:Heuristic = H0, game:Puzzle8=None):
-        # the puzzle to be solved
-        self._game = game
+    def __init__(self, h_func:Heuristic = H0()):
+        # logger to be defined in subclasses
+        self._search_logger = logging.getLogger()
+        self._sol_logger = logging.getLogger()
         # heuristic function
         self._heuristic = h_func
         # pq sorted by f(n)
@@ -16,58 +17,228 @@ class SearchStrategy(ABC):
         self._closed_list = {}
         super().__init__()
 
+    def setup_loggers(self, puzzle_num=-1):
+        filename = 'out/{}_{}_'.format(puzzle_num, str(self))
+        logging.basicConfig(filename='out/dump.log', filemode='w', format='%(message)s', level='INFO')
+        self._search_logger = logging.getLogger('.'.join(['search', str(self), str(puzzle_num)]))
+        self._search_logger.addHandler(logging.FileHandler(filename + 'search.txt', 'w'))
+        self._sol_logger = logging.getLogger('.'.join(['sol', str(self), str(puzzle_num)]))
+        self._sol_logger.addHandler(logging.FileHandler(filename + 'solution.txt', 'w'))
+
+    def reset(self):
+        self._open_list.queue.clear()
+        self._closed_list.clear()
+
+    def fail(self):
+        search_file_handler = self._search_logger.handlers[0]
+        search_file_handler.stream.seek(0)
+        search_file_handler.stream.truncate(0)
+        search_file_handler.terminator = ''
+        self._search_logger.info('no solution')
+        self._sol_logger.handlers[0].terminator = ''
+        self._sol_logger.info('no solution')
+
+    @property
+    def heuristic(self):
+        return self._heuristic
+
+    @heuristic.setter
+    def heuristic(self, h_func:Heuristic):
+        self._heuristic = h_func
+
     @abstractmethod
     def evaluation_function(self, new_state):
         """Evaluation function to be used to get/estimate the cost for a path. """
         pass
 
     @abstractmethod
-    def search(self):
+    def search(self, puzzle):
         """Core search strategy to be used to get the solution. """
         pass
 
-    def update_open_list(self):
+    def update_open_list(self, successors):
         """
         Insert computed successors one by one into the open_list.
         When inserting, don't check if the state already in open_list, directly put in open_list;
         for duplicates, check in closed list whenever popping from open list.
         :return:
         """
-        successors = self._game.successor()
         for to_state in successors:
-            key = hash(to_state)
-            if key not in self._closed_list:
-                self._open_list.put((self.evaluation_function(to_state), to_state))
+            if to_state not in self._closed_list:
+                self._open_list.put((sum(self.evaluation_function(to_state)), to_state))
 
-    def get_best_next(self):
+    def get_best_next_state(self, curr_state):
+        """Pop next minimal cost state from open list"""
+        while self._open_list.not_empty:
+            cost, state = self._open_list.get()
+            if state not in self._closed_list:
+                self._closed_list[state] = curr_state
+                search_file_entry = ' '.join(map(str, (cost, *self.evaluation_function(state), state)))
+                self._search_logger.info(search_file_entry)
+                return cost, state
+        return None # empty open list
+
+    def retrieve_solution(self, last_state):
         """
-        Pop next minimal cost from open list
-        :return: next minimal cost state
+        Track back the from_states beginning with the last state reached by the search algorithm,
+        which is expected to be the goal state.
+
+        The search algorithm calls this method after the search is complete (i.e. reaches goal state).
         """
-        return self._open_list.get()[-1]
+        state = last_state
+        stack = []
+        while state.from_state is not None:
+            sol_file_entry = ' '.join(map(str, (state.last_moved_tile, state.path_cost - state.from_state.path_cost, state)))
+            stack.append(sol_file_entry)
+            state = state.from_state
 
+        sol_file_entry = ' '.join(map(str, (state.last_moved_tile, state.path_cost, state)))
+        stack.append(sol_file_entry)
 
-class UniformCost(SearchStrategy, ABC):
+        while stack:
+            self._sol_logger.info(stack.pop())
 
-    def evaluation_function(self, new_state):
-        return new_state.path_cost
-
-    def search(self):
-        pass
 
 class GBFS(SearchStrategy, ABC):
+    def __init__(self, h_func:Heuristic = H0()):
+        super().__init__(h_func)
+
+    def __str__(self):
+        return 'gbfs-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
-        return self._heuristic.estimate(new_state.config)
+        return 0, self._heuristic.estimate(new_state.config)
 
-    def search(self):
+    def search(self, puzzle):
+        runtime = time()
+        self._open_list.put((sum(self.evaluation_function(puzzle.state)), puzzle.state))
+        while not self._open_list.empty():
+            if puzzle.is_goal():
+                runtime = time() - runtime
+                self.retrieve_solution(puzzle.state)
+                self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+                return
+            self.update_open_list(puzzle.successor())
+            _, puzzle.state = self.get_best_next_state(puzzle.state)
+        self.fail()
+
+
+class AStar(SearchStrategy, ABC):
+    def __init__(self, h_func:Heuristic = H0()):
+        super().__init__(h_func)
+
+    def __str__(self):
+        return 'astar-' + str(self._heuristic)
+
+    def evaluation_function(self, new_state):
+        return new_state.path_cost, self._heuristic.estimate(new_state.config)
+
+    def search(self, puzzle):
+        runtime = time()
+
+        # open_list_dict save state and its f value
+        open_list_dict = {}
+        # actual cost g save state and its minimal g value
+        # start node with cost 0
+        g = {puzzle.state: 0}
+        # Put node_start in the OPEN list with f(node_start) = h(node_start) (initialization)
+        self._open_list.put((sum(self.evaluation_function(puzzle.state)), puzzle.state))
+        open_list_dict[puzzle.state] = sum(self.evaluation_function(puzzle.state))
+        # while the OPEN list is not empty {
+        while not self._open_list.empty():
+            # Take from the open list the node node_current with the lowest
+            current_state = None
+
+            # if current_state is node_goal we have found the solution; break
+            if puzzle.is_goal():
+                runtime = time() - runtime
+                self.retrieve_solution(puzzle.state)
+                self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+                break
+
+            # Generate each state node_successor that come after node_current
+            successors = puzzle.successor()
+            if not successors:
+                break
+            # for each node_successor of node_current {
+            for successor in successors:
+                # Set successor_current_g = g(node_current) + w(node_current, node_successor)
+                # successor_current_g is contained in successor._path_cost
+
+                if successor in open_list_dict:
+                    # if g(node_successor) ≤ successor_current_g continue
+                    if g[successor] <= successor.path_cost:
+                        continue
+                    # It supposed to replace the existing worse node, but is kept due to efficiency
+                    self._open_list.put((sum(self.evaluation_function(successor)), successor))
+                    open_list_dict[successor] = sum(self.evaluation_function(successor))
+
+                elif successor in self._closed_list:
+                    # if g(node_successor) ≤ successor_current_g continue (to line 20)
+                    if g[successor] <= successor.path_cost:
+                        continue
+                    # Move node_successor from the CLOSED list to the OPEN list
+                    del (self._closed_list[successor])
+                    self._open_list.put((sum(self.evaluation_function(successor)), successor))
+                    open_list_dict[successor] = sum(self.evaluation_function(successor))
+
+                else:
+                    # Add node_successor to the OPEN list
+                    self._open_list.put((sum(self.evaluation_function(successor)), successor))
+                    # record in dict with {state: f-value}
+                    open_list_dict[successor] = sum(self.evaluation_function(successor))
+
+                # Set g(node_successor) = successor_current_g
+                g[successor] = successor.path_cost
+                # Set the parent of node_successor to node_current
+
+                # the successor status contain its parent information
+            # Add node_current to the CLOSED list
+            self._closed_list[puzzle.state] = puzzle.state
+
+            while self._open_list:
+                _, current_state = self._open_list.get()
+                if current_state in self._closed_list:
+                    # if this is a visited status with a high g cost value
+                    if current_state.path_cost > g[current_state]:
+                        continue
+                else:
+                    break
+            # use current state to update the state of puzzle
+            puzzle.state = current_state
+
+
+
+        if not puzzle.is_goal():
+            self.fail()
+            print("Failed the search")
         pass
 
 
-class AlgoA(SearchStrategy, ABC):
+class UCS(SearchStrategy, ABC):
+    def __init__(self, h_func:Heuristic = H0()):
+        super().__init__(h_func)
+
+    def __str__(self):
+        return 'ucs'
 
     def evaluation_function(self, new_state):
-        return new_state.path_cost + self._heuristic.estimate(new_state.config)
+        return new_state.path_cost, 0
 
-    def search(self):
+    def search(self, puzzle):
+        runtime = time()
+        self._open_list.put((0, puzzle.state))
+
+        while self._open_list:
+            _, puzzle.state = self.get_best_next_state(puzzle.state)
+            if puzzle.is_goal():
+                runtime = time() - runtime
+                break
+            self.update_open_list(puzzle.successor())
+
+        if puzzle.is_goal():
+            self.retrieve_solution(puzzle.state)
+            self._solution_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+        else:
+            self.fail()
         pass
