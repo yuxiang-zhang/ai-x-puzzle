@@ -7,19 +7,29 @@ import pandas as pd
 
 
 all_strats = (
-    searchstrat.UCS(),
-    searchstrat.GBFS(heuristics.H1()),
-    searchstrat.GBFS(heuristics.H2()),
-    searchstrat.AStar(heuristics.H1()),
-    searchstrat.AStar(heuristics.H2())
+    searchstrat.UCS(heuristics.H0(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H1(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H2(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H3(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H4(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H5(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H0(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H1(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H2(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H3(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H4(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H5(puzzle.Puzzle8.goals))
 )
 
-def solve_puzzle_file(file, strats=all_strats):
+def solve_puzzle_file(file, strats=all_strats, goals=None, shape=None):
     with open(file, 'r') as f:
         for i, config_str in enumerate(f.readlines()):
             for strat in strats:
                 init_config = tuple(map(int, config_str.split(' ')))
-                game = puzzle.Puzzle8(init_config)
+                if goals is None:
+                    game = puzzle.Puzzle8(init_config)
+                else:
+                    game = puzzle.Puzzle(init_config, goals, shape)
                 strat.setup_loggers(i)
                 p = multiprocessing.Process(target=strat.search, args=tuple([game]))
                 if has_process_timeout(p, 60):
