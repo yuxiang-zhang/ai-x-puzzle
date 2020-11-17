@@ -5,6 +5,8 @@ import multiprocessing
 import numpy as np
 import pandas as pd
 
+x3x3_goal = [tuple(range(9)), tuple((1,2,3,4,5,6,7,8,0))]
+x4x4_goal = [tuple(range(16)), tuple(list(range(1,16))+[0])]
 
 all_strats = (
     searchstrat.UCS(heuristics.H0(puzzle.Puzzle8.goals)),
@@ -18,7 +20,8 @@ all_strats = (
     searchstrat.AStar(heuristics.H2(puzzle.Puzzle8.goals)),
     searchstrat.AStar(heuristics.H3(puzzle.Puzzle8.goals)),
     searchstrat.AStar(heuristics.H4(puzzle.Puzzle8.goals)),
-    searchstrat.AStar(heuristics.H5(puzzle.Puzzle8.goals))
+    searchstrat.AStar(heuristics.H5(puzzle.Puzzle8.goals)),
+    # searchstrat.AStar(heuristics.H4(x4x4_goal))
 )
 
 def solve_puzzle_file(file, strats=all_strats, goals=None, shape=None):
@@ -102,4 +105,5 @@ if __name__ == '__main__':
     # solve_puzzle_file('puzzles/randomPuzzles.txt')
     solve_puzzle_file('puzzles/samplePuzzles.txt')
     # solve_puzzle_file('puzzles/inputPuzzles.txt')
+    # solve_puzzle_file('puzzles/input.txt', goals=x4x4_goal, shape=(4,4))
     print(compile_stats(count=3).T)

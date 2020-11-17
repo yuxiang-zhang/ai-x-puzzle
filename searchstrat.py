@@ -2,7 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from queue import PriorityQueue
 from time import time
-from heuristics import Heuristic, H0
+from heuristics import Heuristic
+import numpy as np
 
 class SearchStrategy(ABC):
     def __init__(self, h_func:Heuristic):
@@ -135,7 +136,10 @@ class AStar(SearchStrategy, ABC):
         return 'astar-' + str(self._heuristic)
 
     def evaluation_function(self, new_state):
-        return new_state.path_cost, self._heuristic.estimate(new_state.config)
+        if isinstance(new_state.config, np.ndarray):
+            return new_state.path_cost, self._heuristic.estimate(new_state.config.ravel().tolist())
+        elif isinstance(new_state.config, list):
+            return new_state.path_cost, self._heuristic.estimate(new_state.config)
 
     def search(self, puzzle):
         runtime = time()

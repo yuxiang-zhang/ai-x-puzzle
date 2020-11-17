@@ -6,13 +6,13 @@ goal2 = [1, 3, 5, 7, 2, 4, 6, 0]
 
 class Heuristic(ABC):
 
-    def __init__(self, goals:[]):
-        if goals is None or not goals:
+    def __init__(self, goals:iter):
+        if not goals:
             raise Exception('No goals defined for Heuristic. ')
         self._goals = goals
 
     @abstractmethod
-    def estimate(self, config):
+    def estimate(self, config:list):
         pass
 
     pass
@@ -28,7 +28,7 @@ class H0(Heuristic, ABC):
     def __str__(self):
         return 'h0'
 
-    def estimate(self, config):
+    def estimate(self, config:list):
         return 0 if config.index(0) == 7 else 1
 
 
@@ -38,7 +38,7 @@ class H1(Heuristic, ABC):
     def __str__(self):
         return 'h1'
 
-    def estimate(self, config):
+    def estimate(self, config:list):
         return min(self.get_ouci_distance(config, goal1), self.get_ouci_distance(config, goal2))
 
     def get_ouci_distance(self, list_input: iter, list_goal):
@@ -67,7 +67,7 @@ class H2(Heuristic, ABC):
     def __str__(self):
         return 'h2'
 
-    def estimate(self, config):
+    def estimate(self, config:list):
         return min(self.get_manh_distance(config, goal1), self.get_manh_distance(config, goal2))
 
     def get_manh_distance(self, list_input: iter, list_goal):
@@ -102,7 +102,7 @@ class H3(Heuristic, ABC):
             if config[i] != x:
                 return i
 
-    def estimate(self, config):
+    def estimate(self, config:list):
         config = list(config)
         min_moves = 100
         for goal in self._goals:
@@ -127,14 +127,14 @@ class H4(Heuristic, ABC):
         return 'h4'
 
     @staticmethod
-    def count_mismatch(config, goal):
+    def count_mismatch(config:list, goal:tuple):
         cnt = 0
         for i, x in enumerate(goal):
             if x != 0 and config[i] != x:
                 cnt += 1
         return cnt
 
-    def estimate(self, config):
+    def estimate(self, config:list):
         config = list(config)
         min_moves = 100
         for goal in self._goals:
@@ -170,7 +170,7 @@ class H5(Heuristic, ABC):
         ans[1] = ans[1]
         return min(ans)
 
-    def estimate(self, config):
+    def estimate(self, config:list):
         config = list(config)
         min_moves = 100
         for goal in self._goals:
