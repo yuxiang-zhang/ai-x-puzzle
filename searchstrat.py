@@ -132,22 +132,25 @@ class AStar(SearchStrategy, ABC):
 
     def evaluation_function(self, new_state):
         return new_state.path_cost, self._heuristic.estimate(new_state.config)
-
+    
     def search(self, puzzle):
+        """
+        psudo code refer to http://mat.uab.cat/~alseda/MasterOpt/AStar-Algorithm.pdf
+        """
         runtime = time()
-
         # open_list_dict save state and its f value
         open_list_dict = {}
-        # actual cost g save state and its minimal g value
-        # start node with cost 0
-        g = {puzzle.state: 0}
+        # g save state and its minimal g value
+        g = {}
         # Put node_start in the OPEN list with f(node_start) = h(node_start) (initialization)
-        self._open_list.put((sum(self.evaluation_function(puzzle.state)), puzzle.state))
+        g[puzzle.state] = 0
+        self._open_list.put(((sum(self.evaluation_function(puzzle.state)) + g[puzzle.state]), puzzle.state))
         open_list_dict[puzzle.state] = sum(self.evaluation_function(puzzle.state))
         # while the OPEN list is not empty {
         while not self._open_list.empty():
-
+            # remember last state
             laststate = puzzle.state
+            print(laststate)
             # Take from the open list the node node_current with the lowest
             current_state = None
             while not self._open_list.empty():
@@ -158,13 +161,14 @@ class AStar(SearchStrategy, ABC):
                         continue
                 else:
                     break
+            # use current state to update the state of puzzle
+            puzzle.state = current_state
             # if current_state is node_goal we have found the solution; break
             if puzzle.is_goal():
                 runtime = time() - runtime
                 self.retrieve_solution(puzzle.state)
                 self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
-                break
-
+                return
             # Generate each state node_successor that come after node_current
             successors = puzzle.successor()
             if not successors:
@@ -173,45 +177,117 @@ class AStar(SearchStrategy, ABC):
             for successor in successors:
                 # Set successor_current_g = g(node_current) + w(node_current, node_successor)
                 # successor_current_g is contained in successor._path_cost
-
+                # if node_successor is in the OPEN list {
                 if successor in open_list_dict:
-                    # if g(node_successor) ≤ successor_current_g continue
+                    # if g(node_successor) ≤ successor_current_g continue (to line 20)
                     if g[successor] <= successor.path_cost:
                         continue
-
+                    # It is supposed to replace the existing worse node, but is kept due to efficiency
+                    self._open_list.put((sum(self.evaluation_function(successor)), successor))
+                    open_list_dict[successor] = sum(self.evaluation_function(successor))
+                # else if node_successor is in the CLOSED list {
                 elif successor in self._closed_list:
                     # if g(node_successor) ≤ successor_current_g continue (to line 20)
                     if g[successor] <= successor.path_cost:
                         continue
                     # Move node_successor from the CLOSED list to the OPEN list
-                    #                                            cost, state
-                    self._open_list.put((self._closed_list[successor], successor))
+                    del(self._closed_list[successor])
+                    self._open_list.put((sum(self.evaluation_function(successor)), successor))
                     open_list_dict[successor] = sum(self.evaluation_function(successor))
-                    del (self._closed_list[successor])
+                # else {
                 else:
                     # Add node_successor to the OPEN list
                     self._open_list.put((sum(self.evaluation_function(successor)), successor))
-                    # record in dict with {state: f-value}
                     open_list_dict[successor] = sum(self.evaluation_function(successor))
-
                 # Set g(node_successor) = successor_current_g
                 g[successor] = successor.path_cost
                 # Set the parent of node_successor to node_current
-
                 # the successor status contain its parent information
             # Add node_current to the CLOSED list
             self._closed_list[puzzle.state] = laststate
-
-
-            # use current state to update the state of puzzle
-            puzzle.state = current_state
-
-
-
+        # if(node_current != node_goal) exit with error (the OPEN list is empty)
         if not puzzle.is_goal():
             self.fail()
-            print("Failed the search")
-        pass
+
+#     def search(self, puzzle):
+#         runtime = time()
+
+#         # open_list_dict save state and its f value
+#         open_list_dict = {}
+#         # actual cost g save state and its minimal g value
+#         # start node with cost 0
+#         g = {puzzle.state: 0}
+#         # Put node_start in the OPEN list with f(node_start) = h(node_start) (initialization)
+#         self._open_list.put((sum(self.evaluation_function(puzzle.state)), puzzle.state))
+#         open_list_dict[puzzle.state] = sum(self.evaluation_function(puzzle.state))
+#         # while the OPEN list is not empty {
+#         while not self._open_list.empty():
+
+#             laststate = puzzle.state
+#             # Take from the open list the node node_current with the lowest
+#             current_state = None
+#             while not self._open_list.empty():
+#                 _, current_state = self._open_list.get()
+#                 if current_state in self._closed_list:
+#                     # if this is a visited status with a high g cost value
+#                     if current_state.path_cost > g[current_state]:
+#                         continue
+#                 else:
+#                     break
+#             # if current_state is node_goal we have found the solution; break
+#             if puzzle.is_goal():
+#                 runtime = time() - runtime
+#                 self.retrieve_solution(puzzle.state)
+#                 self._sol_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
+#                 break
+
+#             # Generate each state node_successor that come after node_current
+#             successors = puzzle.successor()
+#             if not successors:
+#                 break
+#             # for each node_successor of node_current {
+#             for successor in successors:
+#                 # Set successor_current_g = g(node_current) + w(node_current, node_successor)
+#                 # successor_current_g is contained in successor._path_cost
+
+#                 if successor in open_list_dict:
+#                     # if g(node_successor) ≤ successor_current_g continue
+#                     if g[successor] <= successor.path_cost:
+#                         continue
+
+#                 elif successor in self._closed_list:
+#                     # if g(node_successor) ≤ successor_current_g continue (to line 20)
+#                     if g[successor] <= successor.path_cost:
+#                         continue
+#                     # Move node_successor from the CLOSED list to the OPEN list
+#                     #                                            cost, state
+#                     self._open_list.put((self._closed_list[successor], successor))
+#                     open_list_dict[successor] = sum(self.evaluation_function(successor))
+#                     del (self._closed_list[successor])
+#                 else:
+#                     # Add node_successor to the OPEN list
+#                     self._open_list.put((sum(self.evaluation_function(successor)), successor))
+#                     # record in dict with {state: f-value}
+#                     open_list_dict[successor] = sum(self.evaluation_function(successor))
+
+#                 # Set g(node_successor) = successor_current_g
+#                 g[successor] = successor.path_cost
+#                 # Set the parent of node_successor to node_current
+
+#                 # the successor status contain its parent information
+#             # Add node_current to the CLOSED list
+#             self._closed_list[puzzle.state] = laststate
+
+
+#             # use current state to update the state of puzzle
+#             puzzle.state = current_state
+
+
+
+#         if not puzzle.is_goal():
+#             self.fail()
+#             print("Failed the search")
+#         pass
 
 
 class UCS(SearchStrategy, ABC):
