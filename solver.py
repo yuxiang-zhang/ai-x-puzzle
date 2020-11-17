@@ -14,12 +14,15 @@ all_strats = (
     searchstrat.AStar(heuristics.H2())
 )
 
-def solve_puzzle_file(file, strats=all_strats):
+def solve_puzzle_file(file, strats=all_strats, goals=None, shape=None):
     with open(file, 'r') as f:
         for i, config_str in enumerate(f.readlines()):
             for strat in strats:
                 init_config = tuple(map(int, config_str.split(' ')))
-                game = puzzle.Puzzle8(init_config)
+                if goals is None:
+                    game = puzzle.Puzzle8(init_config)
+                else:
+                    game = puzzle.Puzzle(init_config, goals, shape)
                 strat.setup_loggers(i)
                 p = multiprocessing.Process(target=strat.search, args=tuple([game]))
                 if has_process_timeout(p, 60):
