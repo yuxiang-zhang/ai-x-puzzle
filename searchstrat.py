@@ -146,9 +146,18 @@ class AStar(SearchStrategy, ABC):
         open_list_dict[puzzle.state] = sum(self.evaluation_function(puzzle.state))
         # while the OPEN list is not empty {
         while not self._open_list.empty():
+
+            laststate = puzzle.state
             # Take from the open list the node node_current with the lowest
             current_state = None
-
+            while not self._open_list.empty():
+                _, current_state = self._open_list.get()
+                if current_state in self._closed_list:
+                    # if this is a visited status with a high g cost value
+                    if current_state.path_cost > g[current_state]:
+                        continue
+                else:
+                    break
             # if current_state is node_goal we have found the solution; break
             if puzzle.is_goal():
                 runtime = time() - runtime
@@ -169,19 +178,16 @@ class AStar(SearchStrategy, ABC):
                     # if g(node_successor) ≤ successor_current_g continue
                     if g[successor] <= successor.path_cost:
                         continue
-                    # It supposed to replace the existing worse node, but is kept due to efficiency
-                    self._open_list.put((sum(self.evaluation_function(successor)), successor))
-                    open_list_dict[successor] = sum(self.evaluation_function(successor))
 
                 elif successor in self._closed_list:
                     # if g(node_successor) ≤ successor_current_g continue (to line 20)
                     if g[successor] <= successor.path_cost:
                         continue
                     # Move node_successor from the CLOSED list to the OPEN list
-                    del (self._closed_list[successor])
-                    self._open_list.put((sum(self.evaluation_function(successor)), successor))
+                    #                                            cost, state
+                    self._open_list.put((self._closed_list[successor], successor))
                     open_list_dict[successor] = sum(self.evaluation_function(successor))
-
+                    del (self._closed_list[successor])
                 else:
                     # Add node_successor to the OPEN list
                     self._open_list.put((sum(self.evaluation_function(successor)), successor))
@@ -194,16 +200,9 @@ class AStar(SearchStrategy, ABC):
 
                 # the successor status contain its parent information
             # Add node_current to the CLOSED list
-            self._closed_list[puzzle.state] = puzzle.state
+            self._closed_list[puzzle.state] = laststate
 
-            while self._open_list:
-                _, current_state = self._open_list.get()
-                if current_state in self._closed_list:
-                    # if this is a visited status with a high g cost value
-                    if current_state.path_cost > g[current_state]:
-                        continue
-                else:
-                    break
+
             # use current state to update the state of puzzle
             puzzle.state = current_state
 
