@@ -7,12 +7,18 @@ import pandas as pd
 
 
 all_strats = (
-    searchstrat.UCS(),
-    searchstrat.GBFS(heuristics.H1()),
-    searchstrat.GBFS(heuristics.H2()),
-    searchstrat.AStar(heuristics.H0()),
-    searchstrat.AStar(heuristics.H1()),
-    searchstrat.AStar(heuristics.H2())
+    searchstrat.UCS(heuristics.H0(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H1(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H2(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H3(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H4(puzzle.Puzzle8.goals)),
+    searchstrat.GBFS(heuristics.H5(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H0(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H1(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H2(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H3(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H4(puzzle.Puzzle8.goals)),
+    searchstrat.AStar(heuristics.H5(puzzle.Puzzle8.goals))
 )
 
 def solve_puzzle_file(file, strats=all_strats, goals=None, shape=None):

@@ -5,7 +5,7 @@ from time import time
 from heuristics import Heuristic, H0
 
 class SearchStrategy(ABC):
-    def __init__(self, h_func:Heuristic = H0()):
+    def __init__(self, h_func:Heuristic):
         # logger to be defined in subclasses
         self._search_logger = logging.getLogger()
         self._solution_logger = logging.getLogger()
@@ -75,7 +75,7 @@ class SearchStrategy(ABC):
         """Pop next minimal cost state from open list"""
         while self._open_list:
             f_val, next_state = self._open_list.get()
-            if next_state not in self._closed_list:
+            if next_state not in self._closed_list or self._closed_list[next_state] > next_state.path_cost:
                 self._closed_list[next_state] = next_state.path_cost
                 search_file_entry = ' '.join(map(str, (f_val, next_state.path_cost, f_val - next_state.path_cost, next_state)))
                 self._search_logger.info(search_file_entry)
@@ -104,7 +104,7 @@ class SearchStrategy(ABC):
 
 
 class GBFS(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0()):
+    def __init__(self, h_func:Heuristic):
         super().__init__(h_func)
 
     def __str__(self):
@@ -128,7 +128,7 @@ class GBFS(SearchStrategy, ABC):
 
 
 class AStar(SearchStrategy, ABC):
-    def __init__(self, h_func:Heuristic = H0()):
+    def __init__(self, h_func:Heuristic):
         super().__init__(h_func)
 
     def __str__(self):
@@ -157,7 +157,7 @@ class AStar(SearchStrategy, ABC):
 
 
 class UCS(AStar, ABC):
-    def __init__(self, h_func:Heuristic = H0()):
+    def __init__(self, h_func:Heuristic):
         super().__init__(h_func)
 
     def __str__(self):

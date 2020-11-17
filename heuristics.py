@@ -6,6 +6,11 @@ goal2 = [1, 3, 5, 7, 2, 4, 6, 0]
 
 class Heuristic(ABC):
 
+    def __init__(self, goals:[]):
+        if goals is None or not goals:
+            raise Exception('No goals defined for Heuristic. ')
+        self._goals = goals
+
     @abstractmethod
     def estimate(self, config):
         pass
