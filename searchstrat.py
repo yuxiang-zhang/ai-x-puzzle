@@ -67,18 +67,19 @@ class SearchStrategy(ABC):
         :return:
         """
         for to_state in successors:
-            if to_state not in self._closed_list:
+            if to_state not in self._closed_list or self._closed_list[to_state] > to_state.path_cost:
+                self._closed_list.pop(to_state, None)
                 self._open_list.put((sum(self.evaluation_function(to_state)), to_state))
 
-    def get_best_next_state(self, curr_state):
+    def get_best_next_state(self):
         """Pop next minimal cost state from open list"""
-        while self._open_list.not_empty:
-            cost, state = self._open_list.get()
-            if state not in self._closed_list:
-                self._closed_list[state] = curr_state
-                search_file_entry = ' '.join(map(str, (cost, *self.evaluation_function(state), state)))
+        while self._open_list:
+            f_val, next_state = self._open_list.get()
+            if next_state not in self._closed_list:
+                self._closed_list[next_state] = next_state.path_cost
+                search_file_entry = ' '.join(map(str, (f_val, next_state.path_cost, f_val - next_state.path_cost, next_state)))
                 self._search_logger.info(search_file_entry)
-                return cost, state
+                return next_state
         return None # empty open list
 
     def retrieve_solution(self, last_state):
@@ -115,14 +116,14 @@ class GBFS(SearchStrategy, ABC):
     def search(self, puzzle):
         runtime = time()
         self._open_list.put((sum(self.evaluation_function(puzzle.state)), puzzle.state))
-        while not self._open_list.empty():
+        while self._open_list:
             if puzzle.is_goal():
                 runtime = time() - runtime
                 self.retrieve_solution(puzzle.state)
                 self._solution_logger.info('{} {}'.format(puzzle.state.path_cost, runtime))
                 return
             self.update_open_list(puzzle.successor())
-            _, puzzle.state = self.get_best_next_state(puzzle.state)
+            puzzle.state = self.get_best_next_state()
         self.fail()
 
 
@@ -141,7 +142,7 @@ class AStar(SearchStrategy, ABC):
         self._open_list.put((0, puzzle.state))
 
         while self._open_list:
-            _, puzzle.state = self.get_best_next_state(puzzle.state)
+            puzzle.state = self.get_best_next_state()
             if puzzle.is_goal():
                 runtime = time() - runtime
                 break

@@ -10,6 +10,7 @@ all_strats = (
     searchstrat.UCS(),
     searchstrat.GBFS(heuristics.H1()),
     searchstrat.GBFS(heuristics.H2()),
+    searchstrat.AStar(heuristics.H0()),
     searchstrat.AStar(heuristics.H1()),
     searchstrat.AStar(heuristics.H2())
 )
