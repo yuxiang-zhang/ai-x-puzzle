@@ -78,7 +78,7 @@ class SearchStrategy(ABC):
             f_val, next_state = self._open_list.get()
             if next_state not in self._closed_list or self._closed_list[next_state] > next_state.path_cost:
                 self._closed_list[next_state] = next_state.path_cost
-                search_file_entry = ' '.join(map(str, (f_val, next_state.path_cost, f_val - next_state.path_cost, next_state)))
+                search_file_entry = ' '.join(map(str, (f_val, *self.evaluation_function(next_state), next_state)))
                 self._search_logger.info(search_file_entry)
                 return next_state
         return None # empty open list
