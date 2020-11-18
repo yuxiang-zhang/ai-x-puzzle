@@ -31,8 +31,8 @@ def has_process_timeout(process: multiprocessing.Process, timer: int):
 
     return False
 
-def gen_random_puzzle(count=50, x=8):
-    X = np.repeat(np.arange(x).reshape(1,-1), count, axis=0)
+def gen_random_puzzle(count=50, number_of_tiles=8):
+    X = np.repeat(np.arange(number_of_tiles).reshape(1, -1), count, axis=0)
     return np.array(list(map(np.random.permutation, X)))
 
 def compile_stats(strats, count=50, dir_path ='out/'):
@@ -82,25 +82,34 @@ def compile_stats(strats, count=50, dir_path ='out/'):
     return compiled_df
 
 if __name__ == '__main__':
-    x3x3_goal = [tuple(range(9)), tuple((1,2,3,4,5,6,7,8,0))]
+    x2x5_goal = [tuple(range(10)), tuple((1,2,3,4,5,6,7,8,9,0)), tuple((1,3,5,7,9,2,4,6,8,0))]
+    x3x3_goal = [tuple(range(9)), tuple((1,2,3,4,5,6,7,8,0)), tuple((1,4,7,2,5,8,3,6,0))]
     x4x4_goal = [tuple(range(16)), tuple(list(range(1,16))+[0])]
 
-    countdown = 5
+    countdown = 60
+    puzzle_count = 50
 
     # Control which Algorithms to use:
     all_strats = (
-        # searchstrat.UCS(heuristics.H0(puzzle.OldPuzzle.goals)),
-        # searchstrat.GBFS(heuristics.H1(puzzle.OldPuzzle.goals)),
-        # searchstrat.GBFS(heuristics.H2(puzzle.OldPuzzle.goals)),
+        # REQUIRED 5 ALGORITHMS (goals pre-defined in puzzle.py)
+        searchstrat.UCS(heuristics.H0(puzzle.OldPuzzle.goals)),
+        searchstrat.GBFS(heuristics.H1(puzzle.OldPuzzle.goals)),
+        searchstrat.GBFS(heuristics.H2(puzzle.OldPuzzle.goals)),
+        searchstrat.AStar(heuristics.H1(puzzle.OldPuzzle.goals)),
+        searchstrat.AStar(heuristics.H2(puzzle.OldPuzzle.goals)),
+
+        # EXPERIMENTAL ALGORITHMS
         # searchstrat.GBFS(heuristics.H3(puzzle.OldPuzzle.goals)),
         # searchstrat.GBFS(heuristics.H4(puzzle.OldPuzzle.goals)),
         # searchstrat.GBFS(heuristics.H5(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H0(puzzle.OldPuzzle.goals)),
-        # searchstrat.AStar(heuristics.H1(puzzle.OldPuzzle.goals)),
-        # searchstrat.AStar(heuristics.H2(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H3(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H4(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H5(puzzle.OldPuzzle.goals)),
+
+        #SCALED UP ALGORITHMS (goals customized in line 85-87)
+        # searchstrat.AStar(heuristics.H1(x2x5_goal)),
+        # searchstrat.AStar(heuristics.H2(x2x5_goal)),
         # searchstrat.AStar(heuristics.H1(x3x3_goal)),
         # searchstrat.AStar(heuristics.H2(x3x3_goal)),
         # searchstrat.AStar(heuristics.H1(x4x4_goal)),
@@ -108,15 +117,18 @@ if __name__ == '__main__':
     )
 
     # Generate random puzzles:
-    # np.savetxt('puzzles/3x3.txt', X=gen_random_puzzle(x=3*3), fmt='%u')
-    # np.savetxt('puzzles/4x4.txt', X=gen_random_puzzle(count=3, x=4*4), fmt='%u')
+    np.savetxt('puzzles/randomPuzzles.txt', X=gen_random_puzzle(count=puzzle_count, number_of_tiles=2 * 4), fmt='%u')
+    # np.savetxt('puzzles/2x5.txt', X=gen_random_puzzle(count=puzzle_count, number_of_tiles=2 * 5), fmt='%u')
+    # np.savetxt('puzzles/3x3.txt', X=gen_random_puzzle(count=puzzle_count, x=3*3), fmt='%u')
+    # np.savetxt('puzzles/4x4.txt', X=gen_random_puzzle(count=puzzle_count, x=4*4), fmt='%u')
 
     # Generate puzzles:
+    # solve_puzzle_file('puzzles/samplePuzzles.txt', all_strats)
+    solve_puzzle_file('puzzles/randomPuzzles.txt', all_strats, countdown=countdown)
+    # solve_puzzle_file('puzzles/2x5.txt', all_strats, goals=x2x5_goal, shape=(2,5), countdown=100)
     # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3), countdown=100)
     # solve_puzzle_file('puzzles/4x4.txt', all_strats, goals=x4x4_goal, shape=(4,4), countdown=100)
-    solve_puzzle_file('puzzles/randomPuzzles.txt', all_strats)
-    # solve_puzzle_file('puzzles/samplePuzzles.txt', all_strats)
-    # solve_puzzle_file('puzzles/inputPuzzles.txt', all_strats)
 
     # Compile statistics:
-    print(compile_stats(all_strats, count=50).T)
+    print(compile_stats(all_strats, count=puzzle_count).T)
+    compile_stats(all_strats, count=puzzle_count).T.to_csv('stats.csv')
