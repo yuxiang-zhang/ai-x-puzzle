@@ -87,6 +87,7 @@ if __name__ == '__main__':
 
     countdown = 5
 
+    # Control which Algorithms to use:
     all_strats = (
         # searchstrat.UCS(heuristics.H0(puzzle.OldPuzzle.goals)),
         # searchstrat.GBFS(heuristics.H1(puzzle.OldPuzzle.goals)),
@@ -96,19 +97,25 @@ if __name__ == '__main__':
         # searchstrat.GBFS(heuristics.H5(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H0(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H1(puzzle.OldPuzzle.goals)),
-        searchstrat.AStar(heuristics.H2(puzzle.OldPuzzle.goals)),
+        # searchstrat.AStar(heuristics.H2(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H3(puzzle.OldPuzzle.goals)),
-        searchstrat.AStar(heuristics.H4(puzzle.OldPuzzle.goals)),
+        # searchstrat.AStar(heuristics.H4(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H5(puzzle.OldPuzzle.goals)),
-        # searchstrat.AStar(heuristics.H4(x3x3_goal)),
-        # searchstrat.AStar(heuristics.H5(x3x3_goal)),
+        # searchstrat.AStar(heuristics.H1(x3x3_goal)),
+        # searchstrat.AStar(heuristics.H2(x3x3_goal)),
     )
 
-    # np.savetxt('puzzles/randomPuzzles.txt', X=gen_random_puzzle(), fmt='%u')
-    # solve_puzzle_file('puzzles/randomPuzzles.txt', all_strats, goals=x3x3_goal, shape=(3,3), countdown=2)
+    # Generate random puzzles:
+    # np.savetxt('puzzles/3x3.txt', X=gen_random_puzzle(x=3*3), fmt='%u')
+    # np.savetxt('puzzles/4x4.txt', X=gen_random_puzzle(count=3, x=4*4), fmt='%u')
+
+    # Generate puzzles:
+    # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3), countdown=2)
     solve_puzzle_file('puzzles/randomPuzzles.txt', all_strats)
     # solve_puzzle_file('puzzles/samplePuzzles.txt', all_strats)
     # solve_puzzle_file('puzzles/inputPuzzles.txt', all_strats)
     # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3))
     # solve_puzzle_file('puzzles/4x4.txt', all_strats, goals=x4x4_goal, shape=(4,4))
+
+    # Compile statistics:
     print(compile_stats(all_strats, count=50).T)

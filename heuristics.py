@@ -34,6 +34,65 @@ class H0(Heuristic, ABC):
 
 
 class H1(Heuristic, ABC):
+    """ Hamming Distance """
+
+    def __str__(self):
+        return 'h4'
+
+    @staticmethod
+    def count_mismatch(config:list, goal:tuple):
+        cnt = 0
+        for i, x in enumerate(goal):
+            if x != 0 and config[i] != x:
+                cnt += 1
+        return cnt
+
+    def estimate(self, config:np.ndarray):
+        config = list(config.ravel().tolist())
+        min_moves = 100
+        for goal in self._goals:
+            moves = self.count_mismatch(config, goal)
+            min_moves = min(min_moves, moves)
+        return min_moves
+
+
+class H2(Heuristic, ABC):
+    """ Count Rows and Cols Disorder Distance """
+
+    def __str__(self):
+        return 'h5'
+
+    @staticmethod
+    def count_mismatch(config:list, goal:list, row, col):
+        ans = [0, 0]
+        for i in range(row):
+            for j in range(col):
+                index = j + i * col
+                if config[index] != goal[index]:
+                    ans[0] += 1
+                    break
+
+        for j in range(col):
+            for i in range(row):
+                index = j + i * col
+                if config[index] != goal[index]:
+                    ans[1] += 1
+                    break
+
+        ans[0] = ans[0]
+        ans[1] = ans[1]
+        return min(ans)
+
+    def estimate(self, config:np.ndarray):
+        config = list(config.ravel().tolist())
+        min_moves = 100
+        for goal in self._goals:
+            moves = self.count_mismatch(config, goal, 2, 4)
+            min_moves = min(min_moves, moves)
+        return min_moves
+
+
+class H4(Heuristic, ABC):
     """    Modified Euclidean distance    """
 
     def __str__(self):
@@ -65,7 +124,7 @@ class H1(Heuristic, ABC):
         return sum_distance_list
 
 
-class H2(Heuristic, ABC):
+class H5(Heuristic, ABC):
     """    Modified Manhattan distance    """
 
     def __str__(self):
@@ -125,67 +184,8 @@ class H3(Heuristic, ABC):
             min_moves = min(min_moves, moves)
         return min_moves
 
-
-class H4(Heuristic, ABC):
-    """ Hamming Distance """
-
-    def __str__(self):
-        return 'h4'
-
-    @staticmethod
-    def count_mismatch(config:list, goal:tuple):
-        cnt = 0
-        for i, x in enumerate(goal):
-            if x != 0 and config[i] != x:
-                cnt += 1
-        return cnt
-
-    def estimate(self, config:np.ndarray):
-        config = list(config.ravel().tolist())
-        min_moves = 100
-        for goal in self._goals:
-            moves = self.count_mismatch(config, goal)
-            min_moves = min(min_moves, moves)
-        return min_moves
-
-
-class H5(Heuristic, ABC):
-    """ Count Rows and Cols Disorder Distance """
-
-    def __str__(self):
-        return 'h5'
-
-    @staticmethod
-    def count_mismatch(config:list, goal:list, row, col):
-        ans = [0, 0]
-        for i in range(row):
-            for j in range(col):
-                index = j + i * col
-                if config[index] != goal[index]:
-                    ans[0] += 1
-                    break
-
-        for j in range(col):
-            for i in range(row):
-                index = j + i * col
-                if config[index] != goal[index]:
-                    ans[1] += 1
-                    break
-
-        ans[0] = ans[0]
-        ans[1] = ans[1]
-        return min(ans)
-
-    def estimate(self, config:np.ndarray):
-        config = list(config.ravel().tolist())
-        min_moves = 100
-        for goal in self._goals:
-            moves = self.count_mismatch(config, goal, 2, 4)
-            min_moves = min(min_moves, moves)
-        return min_moves
-
 if __name__ == '__main__':
-    h = H1([(1,2,3,4,5,6,7,0), (1,3,5,7,2,4,6,0)])
+    h = H4([(1, 2, 3, 4, 5, 6, 7, 0), (1, 3, 5, 7, 2, 4, 6, 0)])
 
     print(h.estimate(np.array([3, 0, 1, 4, 2, 6, 5, 7]).reshape(2,4)))
     print(h.estimate(np.array([6, 3, 4, 7, 1, 2, 5, 0]).reshape(2,4)))
