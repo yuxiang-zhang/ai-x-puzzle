@@ -37,7 +37,7 @@ class H1(Heuristic, ABC):
     """ Hamming Distance """
 
     def __str__(self):
-        return 'h4'
+        return 'h1'
 
     @staticmethod
     def count_mismatch(config:list, goal:tuple):
@@ -60,7 +60,7 @@ class H2(Heuristic, ABC):
     """ Count Rows and Cols Disorder Distance """
 
     def __str__(self):
-        return 'h5'
+        return 'h2'
 
     @staticmethod
     def count_mismatch(config:list, goal:list, row, col):
@@ -96,7 +96,7 @@ class H4(Heuristic, ABC):
     """    Modified Euclidean distance    """
 
     def __str__(self):
-        return 'h1'
+        return 'h4'
 
     def estimate(self, config: np.ndarray):
         return min(self.get_ouci_distance(config, self._goals))
@@ -128,7 +128,7 @@ class H5(Heuristic, ABC):
     """    Modified Manhattan distance    """
 
     def __str__(self):
-        return 'h2'
+        return 'h5'
 
     def estimate(self, config: np.ndarray):
         return min(self.get_manh_distance(config, self._goals))

@@ -103,6 +103,8 @@ if __name__ == '__main__':
         # searchstrat.AStar(heuristics.H5(puzzle.OldPuzzle.goals)),
         # searchstrat.AStar(heuristics.H1(x3x3_goal)),
         # searchstrat.AStar(heuristics.H2(x3x3_goal)),
+        # searchstrat.AStar(heuristics.H1(x4x4_goal)),
+        # searchstrat.AStar(heuristics.H2(x4x4_goal)),
     )
 
     # Generate random puzzles:
@@ -110,12 +112,11 @@ if __name__ == '__main__':
     # np.savetxt('puzzles/4x4.txt', X=gen_random_puzzle(count=3, x=4*4), fmt='%u')
 
     # Generate puzzles:
-    # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3), countdown=2)
+    # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3), countdown=100)
+    # solve_puzzle_file('puzzles/4x4.txt', all_strats, goals=x4x4_goal, shape=(4,4), countdown=100)
     solve_puzzle_file('puzzles/randomPuzzles.txt', all_strats)
     # solve_puzzle_file('puzzles/samplePuzzles.txt', all_strats)
     # solve_puzzle_file('puzzles/inputPuzzles.txt', all_strats)
-    # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3))
-    # solve_puzzle_file('puzzles/4x4.txt', all_strats, goals=x4x4_goal, shape=(4,4))
 
     # Compile statistics:
     print(compile_stats(all_strats, count=50).T)
