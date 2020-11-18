@@ -1,7 +1,7 @@
-from state import State, State2D
+from state import State2D
 import numpy as np
 
-class Puzzle8:
+class OldPuzzle:
     goals = ((1, 2, 3, 4, 5, 6, 7, 0), (1, 3, 5, 7, 2, 4, 6, 0))
 
     @property
@@ -12,12 +12,12 @@ class Puzzle8:
     def state(self, state):
         self._state = state
 
-    def __init__(self, init_config: tuple, goals=goals, shape=(2,4)):
+    def __init__(self, init_config:tuple, goals=goals, shape=(2,4)):
         if len(init_config) != 8:
             raise Exception('Bad length for an 8-puzzle. ')
         self._goals = tuple(hash(goal) for goal in goals)
         # initial state
-        self._state = State(init_config, 0)
+        self._state = State2D(np.ndarray(init_config), 0)
 
     def is_goal(self):
         return hash(self._state) in self._goals
@@ -51,7 +51,7 @@ class Puzzle8:
         successors = []
         for move_cost, tiles in moves.items():
             for tile in tiles:
-                successors.append(State(self.gen_config(blank, tile),
+                successors.append(State2D(self.gen_config(blank, tile), #FIXME: not passing the right param
                                         self._state.path_cost + move_cost,
                                         self._state,
                                         self._state.config[tile]))
@@ -68,7 +68,7 @@ class Puzzle:
     def state(self, state):
         self._state = state
 
-    def __init__(self, init_config: tuple, goals: [], shape):
+    def __init__(self, init_config:tuple, goals: [], shape):
         self._goals = tuple(hash(np.array(goal).tobytes()) for goal in goals if len(goal) == len(goals[0]))
         if not self._goals:
             raise Exception('No goal was defined. ')
