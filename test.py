@@ -1,9 +1,11 @@
 import unittest
+from queue import PriorityQueue
 import puzzle
 import searchstrat
-from state import State
+from state import State2D
 import os, glob
 import heuristics
+import numpy as np
 
 class TestPuzzle(unittest.TestCase):
 
@@ -18,43 +20,41 @@ class TestPuzzle(unittest.TestCase):
         pass
 
     def test_get_state(self):
-        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        self.assertEqual(game.state, State((4, 2, 3, 1, 5, 6, 7, 0)))
+        game = puzzle.Puzzle((4, 2, 3, 1, 5, 6, 7, 0), puzzle.OldPuzzle.goals, (2, 4))
+        self.assertEqual(game.state, State2D(np.array([4, 2, 3, 1, 5, 6, 7, 0])))
 
     def test_set_state(self):
-        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        newgame = puzzle.Puzzle8((1, 3, 5, 7, 2, 4, 6, 0))
+        game = puzzle.Puzzle((4, 2, 3, 1, 5, 6, 7, 0), puzzle.OldPuzzle.goals, (2, 4))
+        newgame = puzzle.Puzzle((1, 3, 5, 7, 2, 4, 6, 0), puzzle.OldPuzzle.goals, (2, 4))
         game.state = newgame.state
         self.assertEqual(game.state, newgame.state)
 
     def test_goal(self):
-        self.assertTrue(puzzle.Puzzle8((1, 3, 5, 7, 2, 4, 6, 0)).is_goal())
-        self.assertFalse(puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0)).is_goal())
-
-    def test_gen_config(self):
-        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        self.assertEqual(game.gen_config(0, 7), tuple((0, 2, 3, 1, 5, 6, 7, 4)))
+        self.assertTrue(puzzle.Puzzle((1, 3, 5, 7, 2, 4, 6, 0), puzzle.OldPuzzle.goals, (2, 4)).is_goal())
+        self.assertFalse(puzzle.Puzzle((4, 2, 3, 1, 5, 6, 7, 0), puzzle.OldPuzzle.goals, (2, 4)).is_goal())
 
     def test_update_open_list_with_successor_function(self):
-        import heapq
-        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        strat = searchstrat.UCS(heuristics.H0(puzzle.Puzzle8.goals))
+        game = puzzle.Puzzle((4, 2, 3, 1, 5, 6, 7, 0), puzzle.OldPuzzle.goals, (2, 4))
+        strat = searchstrat.UCS(heuristics.H0(puzzle.OldPuzzle.goals))
         strat.update_open_list(game.successor())
-        init_state = State((4, 2, 3, 1, 5, 6, 7, 0))
-        successors = [(1, State((4, 2, 3, 0, 5, 6, 7, 1), 1, init_state)),
-                      (1, State((4, 2, 3, 1, 5, 6, 0, 7), 1, init_state)),
-                      (2, State((4, 2, 3, 1, 0, 6, 7, 5), 2, init_state)),
-                      (3, State((0, 2, 3, 1, 5, 6, 7, 4), 3, init_state)),
-                      (3, State((4, 2, 0, 1, 5, 6, 7, 3), 3, init_state))]
-        while successors:
-            self.assertEqual(heapq.heappop(successors)[-1], strat.get_best_next_state())
+        init_state = State2D(np.array([4, 2, 3, 1, 5, 6, 7, 0]), 0)
+        q = PriorityQueue()
+        successors = [(1, State2D(np.array([4, 2, 3, 0, 5, 6, 7, 1]), 1, init_state)),
+                      (1, State2D(np.array([4, 2, 3, 1, 5, 6, 0, 7]), 1, init_state)),
+                      (2, State2D(np.array([4, 2, 3, 1, 0, 6, 7, 5]), 2, init_state)),
+                      (3, State2D(np.array([0, 2, 3, 1, 5, 6, 7, 4]), 3, init_state)),
+                      (3, State2D(np.array([4, 2, 0, 1, 5, 6, 7, 3]), 3, init_state))]
+        for s in successors:
+            q.put(s)
+        for _ in successors:
+            self.assertEqual(q.get()[-1], strat.get_best_next_state())
 
     def test_state_str(self):
-        self.assertRegex(str(State((4,2,3,0,5,6,7,1))), '4 2 3 0 5 6 7 1')
+        self.assertRegex(str(State2D(np.array([4, 2, 3, 1, 5, 6, 7, 0]), 0)), '^(\d\s){7}\d$')
 
     def test_searchstrat_fail(self):
-        game = puzzle.Puzzle8((1, 2, 3, 4, 5, 6, 0, 7))
-        strat = searchstrat.UCS(heuristics.H0(puzzle.Puzzle8.goals))
+        game = puzzle.Puzzle((1, 2, 3, 4, 5, 6, 0, 7), puzzle.OldPuzzle.goals, (2, 4))
+        strat = searchstrat.UCS(heuristics.H0(puzzle.OldPuzzle.goals))
         strat.setup_loggers()
         strat.search(game)
         strat.fail()
@@ -64,13 +64,13 @@ class TestPuzzle(unittest.TestCase):
             self.assertEqual(f.read(), 'no solution')
 
     def test_gbfs_search_H1(self):
-        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        strat = searchstrat.GBFS(heuristics.H1(puzzle.Puzzle8.goals))
+        game = puzzle.Puzzle((4, 2, 3, 1, 5, 6, 7, 0), puzzle.OldPuzzle.goals, (2, 4))
+        strat = searchstrat.GBFS(heuristics.H1(puzzle.OldPuzzle.goals))
         strat.search(game)
 
     def test_gbfs_search_H2(self):
-        game = puzzle.Puzzle8((4, 2, 3, 1, 5, 6, 7, 0))
-        strat = searchstrat.GBFS(heuristics.H2(puzzle.Puzzle8.goals))
+        game = puzzle.Puzzle((4, 2, 3, 1, 5, 6, 7, 0), puzzle.OldPuzzle.goals, (2, 4))
+        strat = searchstrat.GBFS(heuristics.H2(puzzle.OldPuzzle.goals))
         strat.search(game)
 
 if __name__ == '__main__':

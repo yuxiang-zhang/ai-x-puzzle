@@ -45,10 +45,11 @@ class H1(Heuristic, ABC):
     def get_ouci_distance(self, config: np.ndarray, list_goal):
         sum_distance_list = []
         distance_list = []
-        for goal_index in range(len(list_goal)):
-            for row_input in range(len(config.shape[0])):
-                for col_input in range(len(config.shape[1])):
-                    goal_index = list_goal[goal_index].index(config[row_input][col_input])
+        for goal in list_goal:
+            for row_input in range(config.shape[0]):
+                for col_input in range(config.shape[1]):
+                    # print(goal_index, list_goal)
+                    goal_index = goal.index(config[row_input][col_input])
 
                     row_goal = goal_index // config.shape[1]
                     col_goal = goal_index % config.shape[1]
@@ -76,10 +77,11 @@ class H2(Heuristic, ABC):
     def get_manh_distance(self, config: np.ndarray, list_goal):
         sum_distance_list = []
         distance_list = []
-        for goal_index in range(len(list_goal)):
-            for row_input in range(len(config.shape[0])):
-                for col_input in range(len(config.shape[1])):
-                    goal_index = list_goal[goal_index].index(config[row_input][col_input])
+        for goal in list_goal:
+            for row_input in range(config.shape[0]):
+                for col_input in range(config.shape[1]):
+
+                    goal_index = goal.index(config[row_input][col_input])
 
                     row_goal = goal_index // config.shape[1]
                     col_goal = goal_index % config.shape[1]
@@ -185,7 +187,7 @@ class H5(Heuristic, ABC):
 if __name__ == '__main__':
     h = H1([(1,2,3,4,5,6,7,0), (1,3,5,7,2,4,6,0)])
 
-    print(h.estimate(np.array([3, 0, 1, 4, 2, 6, 5, 7])))
-    print(h.estimate(np.array([6, 3, 4, 7, 1, 2, 5, 0])))
-    print(h.estimate(np.array([1, 0, 3, 6, 5, 2, 7, 4])))
-    print(h.estimate(np.array([1, 2, 3, 4, 5, 6, 0, 7])))
+    print(h.estimate(np.array([3, 0, 1, 4, 2, 6, 5, 7]).reshape(2,4)))
+    print(h.estimate(np.array([6, 3, 4, 7, 1, 2, 5, 0]).reshape(2,4)))
+    print(h.estimate(np.array([1, 0, 3, 6, 5, 2, 7, 4]).reshape(2,4)))
+    print(h.estimate(np.array([1, 2, 3, 4, 5, 6, 0, 7]).reshape(2,4)))
