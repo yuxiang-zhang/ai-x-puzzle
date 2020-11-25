@@ -68,8 +68,8 @@ class SearchStrategy(ABC):
         :return:
         """
         for to_state in successors:
-            if to_state not in self._closed_list or self._closed_list[to_state] > to_state.path_cost:
-                self._closed_list.pop(to_state, None)
+            if to_state not in self._closed_list:# or self._closed_list[to_state] > to_state.path_cost:
+                #self._closed_list.pop(to_state, None)
                 self._open_list.put((sum(self.evaluation_function(to_state)), to_state))
 
     def get_best_next_state(self):

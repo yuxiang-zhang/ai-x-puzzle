@@ -1,4 +1,4 @@
-from state import State2D
+from state import State2D, State
 import numpy as np
 
 class OldPuzzle:
@@ -17,7 +17,7 @@ class OldPuzzle:
             raise Exception('Bad length for an 8-puzzle. ')
         self._goals = tuple(hash(goal) for goal in goals)
         # initial state
-        self._state = State2D(np.ndarray(init_config), 0)
+        self._state = State(init_config, 0)
 
     def is_goal(self):
         return hash(self._state) in self._goals
@@ -51,7 +51,7 @@ class OldPuzzle:
         successors = []
         for move_cost, tiles in moves.items():
             for tile in tiles:
-                successors.append(State2D(self.gen_config(blank, tile), #FIXME: not passing the right param
+                successors.append(State(self.gen_config(blank, tile),
                                         self._state.path_cost + move_cost,
                                         self._state,
                                         self._state.config[tile]))
