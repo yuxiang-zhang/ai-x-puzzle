@@ -11,7 +11,7 @@ def solve_puzzle_file(file, strats, goals=None, shape=None, countdown=60):
             for strat in strats:
                 init_config = tuple(map(int, config_str.split(' ')))
                 if goals is None:
-                    game = puzzle.Puzzle(init_config, puzzle.OldPuzzle.goals, (2, 4))
+                    game = puzzle.OldPuzzle(init_config, puzzle.OldPuzzle.goals, (2, 4))
                 else:
                     game = puzzle.Puzzle(init_config, goals, shape)
                 strat.setup_loggers(i)
@@ -84,15 +84,15 @@ def compile_stats(strats, count=50, dir_path ='out/'):
 if __name__ == '__main__':
     x2x5_goal = [tuple(range(10)), tuple((1,2,3,4,5,6,7,8,9,0)), tuple((1,3,5,7,9,2,4,6,8,0))]
     x3x3_goal = [tuple(range(9)), tuple((1,2,3,4,5,6,7,8,0)), tuple((1,4,7,2,5,8,3,6,0))]
-    x4x4_goal = [tuple(range(16)), tuple(list(range(1,16))+[0])]
+    x4x4_goal = [tuple(range(16)), tuple(list(range(1,16))+[0]), tuple((1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,0))]
 
-    countdown = 60
-    puzzle_count = 50
+    countdown = 120
+    puzzle_count = 25
 
     # Control which Algorithms to use:
     all_strats = (
         # REQUIRED 5 ALGORITHMS (goals pre-defined in puzzle.py)
-        searchstrat.UCS(heuristics.H0(puzzle.OldPuzzle.goals)),
+        # searchstrat.UCS(heuristics.H0(puzzle.OldPuzzle.goals)),
         searchstrat.GBFS(heuristics.H1(puzzle.OldPuzzle.goals)),
         searchstrat.GBFS(heuristics.H2(puzzle.OldPuzzle.goals)),
         searchstrat.AStar(heuristics.H1(puzzle.OldPuzzle.goals)),
@@ -110,25 +110,31 @@ if __name__ == '__main__':
         #SCALED UP ALGORITHMS (goals customized in line 85-87)
         # searchstrat.AStar(heuristics.H1(x2x5_goal)),
         # searchstrat.AStar(heuristics.H2(x2x5_goal)),
+        # searchstrat.AStar(heuristics.H4(x2x5_goal)),
+        # searchstrat.AStar(heuristics.H5(x2x5_goal)),
         # searchstrat.AStar(heuristics.H1(x3x3_goal)),
         # searchstrat.AStar(heuristics.H2(x3x3_goal)),
+        # searchstrat.AStar(heuristics.H4(x3x3_goal)),
+        # searchstrat.AStar(heuristics.H5(x3x3_goal)),
         # searchstrat.AStar(heuristics.H1(x4x4_goal)),
         # searchstrat.AStar(heuristics.H2(x4x4_goal)),
+        # searchstrat.AStar(heuristics.H4(x4x4_goal)),
+        # searchstrat.AStar(heuristics.H5(x4x4_goal)),
     )
 
     # Generate random puzzles:
-    np.savetxt('puzzles/randomPuzzles.txt', X=gen_random_puzzle(count=puzzle_count, number_of_tiles=2 * 4), fmt='%u')
+    # np.savetxt('puzzles/randomPuzzles.txt', X=gen_random_puzzle(count=puzzle_count, number_of_tiles=2 * 4), fmt='%u')
     # np.savetxt('puzzles/2x5.txt', X=gen_random_puzzle(count=puzzle_count, number_of_tiles=2 * 5), fmt='%u')
     # np.savetxt('puzzles/3x3.txt', X=gen_random_puzzle(count=puzzle_count, x=3*3), fmt='%u')
     # np.savetxt('puzzles/4x4.txt', X=gen_random_puzzle(count=puzzle_count, x=4*4), fmt='%u')
 
     # Generate puzzles:
-    # solve_puzzle_file('puzzles/samplePuzzles.txt', all_strats)
-    solve_puzzle_file('puzzles/randomPuzzles.txt', all_strats, countdown=countdown)
+    # solve_puzzle_file('puzzles/input.txt', all_strats)
+    solve_puzzle_file('puzzles/competitionPuzzles.txt', all_strats, countdown=countdown)
     # solve_puzzle_file('puzzles/2x5.txt', all_strats, goals=x2x5_goal, shape=(2,5), countdown=100)
-    # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3), countdown=100)
+    # solve_puzzle_file('puzzles/3x3.txt', all_strats, goals=x3x3_goal, shape=(3,3), countdown=5)
     # solve_puzzle_file('puzzles/4x4.txt', all_strats, goals=x4x4_goal, shape=(4,4), countdown=100)
 
     # Compile statistics:
     print(compile_stats(all_strats, count=puzzle_count).T)
-    compile_stats(all_strats, count=puzzle_count).T.to_csv('stats.csv')
+    compile_stats(all_strats, count=puzzle_count).T.to_csv('competition.csv')
